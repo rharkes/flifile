@@ -114,9 +114,7 @@ class FliFile:
         :return: numpy.ndarray
         """
         data_info = self._get_data_info()
-        print(data_info)
         data_size = np.prod(data_info['IMSize'], dtype=np.uint64)
-        print(data_size)
         if data_info['Compression'] > 0:
             fid = self.path.open(mode='rb')
             fid.seek(self._datastart)
