@@ -114,7 +114,9 @@ class FliFile:
         :return: numpy.ndarray
         """
         data_info = self._get_data_info()
-        data_size = np.prod(data_info['IMSize'])
+        print(data_info)
+        data_size = np.prod(data_info['IMSize'], dtype=np.uint64)
+        print(data_size)
         if data_info['Compression'] > 0:
             fid = self.path.open(mode='rb')
             fid.seek(self._datastart)
@@ -152,9 +154,12 @@ class FliFile:
                 self.getdata(subtractbackground=True, squeeze=False)
                 data = self._bg
             else:
-                bgstart = self._datastart + np.dtype(data_info['IMType']).itemsize * np.prod(data_info['IMSize'])
+                bgstart = np.uint64(self._datastart)
+                bgstart = bgstart + np.uint64(np.dtype(data_info['IMType']).itemsize) * np.prod(data_info['IMSize'],
+                                                                                                dtype=np.uint64)
+                print(type(bgstart))
                 data = np.fromfile(self.path, offset=bgstart,
-                                   dtype=data_info['BGType'], count=np.prod(data_info['BGSize']))
+                                   dtype=data_info['BGType'], count=np.prod(data_info['BGSize'], dtype=np.uint64))
                 data = data.reshape(data_info['BGSize'][::-1])
         if squeeze:
             return np.squeeze(data.transpose((5, 4, 2, 1, 3, 0, 6)))  # x,y,ph,t,z,fr,c
