@@ -155,7 +155,6 @@ class FliFile:
                 bgstart = np.uint64(self._datastart)
                 bgstart = bgstart + np.uint64(np.dtype(data_info['IMType']).itemsize) * np.prod(data_info['IMSize'],
                                                                                                 dtype=np.uint64)
-                print(type(bgstart))
                 data = np.fromfile(self.path, offset=bgstart,
                                    dtype=data_info['BGType'], count=np.prod(data_info['BGSize'], dtype=np.uint64))
                 data = data.reshape(data_info['BGSize'][::-1])
