@@ -1,6 +1,6 @@
 """
 Python support for the the Lambert Instruments .fli file
-Version 1.0
+Version 1.2.0
 
 (c) R.Harkes NKI
 
@@ -25,6 +25,13 @@ import zlib
 class FliFile:
     """
     Lambert Instruments .fli file
+    Contains:
+    - header: dictionary with all header entries
+    - path: pathlib.Path to the file
+    Hidden:
+    - _bg: to store the background
+    - _datastart: pointer to the start of the data
+    - _di: dictionary with data information based on the header
     """
 
     def __init__(self, filepath):
@@ -52,7 +59,8 @@ class FliFile:
         value = []
         pv_pairs = {}
         sections = {}
-        while byte := fid.read(1):
+        while True:
+            byte = fid.read(1)
             if byte == b'{':
                 if current_chapter:  # there is a chapter finished
                     sections[current_section] = pv_pairs  # add last pv_pairs to the sections
@@ -104,6 +112,7 @@ class FliFile:
             if mode == 3:
                 value.append(byte.decode("utf-8"))
         fid.close()
+        self._di = self._get_data_info()
 
     def getdata(self, subtractbackground=True, squeeze=True):
         """
@@ -113,21 +122,23 @@ class FliFile:
         :param squeeze: Return data without singleton dimensions in x,y,ph,t,z,fr,c order
         :return: numpy.ndarray
         """
-        data_info = self._get_data_info()
-        data_size = np.prod(data_info['IMSize'], dtype=np.uint64)
-        if data_info['Compression'] > 0:
+        if not self._di['BG_present']:
+            subtractbackground = False
+        datasize = np.prod(self._di['IMSize'], dtype=np.uint64)
+        if self._di['Compression'] > 0:
             fid = self.path.open(mode='rb')
             fid.seek(self._datastart)
             dcmp = zlib.decompressobj(32 + zlib.MAX_WBITS)  # skip the GZIP header
-            data = np.frombuffer(dcmp.decompress(fid.read()), dtype=data_info['IMType'])
-            bg = data[data_size:]
-            self._bg = bg.reshape(data_info['BGSize'][::-1])
-            data = data[:data_size]
-            data = data.reshape(data_info['IMSize'][::-1])
+            data = np.frombuffer(dcmp.decompress(fid.read()), dtype=self._di['IMType'][0])
+            bg = data[datasize:]
+            self._bg = bg.reshape(self._di['BGSize'][::-1])
+            data = data[:datasize]
         else:
-            data = np.fromfile(self.path, offset=self._datastart,
-                               dtype=data_info['IMType'], count=data_size)
-            data = data.reshape(data_info['IMSize'][::-1])
+            data = self._get_data_from_file(offset=self._datastart, datatype=self._di['IMType'], datasize=datasize)
+
+        if self._di['IMType'][1] == 12:  # 12 bit per pixel packed per 2 in 3 bytes
+            data = self._convert_12_bit(data, datatype=self._di['IMType'])
+        data = data.reshape(self._di['IMSize'][::-1])
         if subtractbackground:
             self._bg = self.getbackground(squeeze=False)
             data = data - self._bg
@@ -143,45 +154,133 @@ class FliFile:
         :param squeeze: Return data without singleton dimensions in x,y,ph,t,z,fr,c order
         :return: numpy.ndarray
         """
+        if not self._di['BG_present']:
+            print('WARNING: No background present in file')
+            return 0
         if self._bg is not None:
             data = self._bg
         else:
-            data_info = self._get_data_info()
-            if data_info['Compression'] > 0:
+            if self._di['Compression'] > 0:
                 print('WARNING: Getting background before getting data is inefficient in compressed files.')
                 self.getdata(subtractbackground=True, squeeze=False)
                 data = self._bg
             else:
-                bgstart = np.uint64(self._datastart)
-                bgstart = bgstart + np.uint64(np.dtype(data_info['IMType']).itemsize) * np.prod(data_info['IMSize'],
-                                                                                                dtype=np.uint64)
-                data = np.fromfile(self.path, offset=bgstart,
-                                   dtype=data_info['BGType'], count=np.prod(data_info['BGSize'], dtype=np.uint64))
-                data = data.reshape(data_info['BGSize'][::-1])
+                offset = np.uint64(self._datastart)
+                offset = offset + (np.uint64(self._di['IMType'][1]) * np.prod(self._di['IMSize'], dtype=np.uint64))/8
+                datasize = np.prod(self._di['BGSize'], dtype=np.uint64)
+                data = self._get_data_from_file(offset=int(offset), datatype=self._di['BGType'], datasize=datasize)
+                if self._di['BGType'][1] == 12:  # 12 bit per pixel packed per 2 in 3 bytes
+                    data = self._convert_12_bit(data, datatype=self._di['BGType'])
+                data = data.reshape(self._di['BGSize'][::-1])
         if squeeze:
             return np.squeeze(data.transpose((5, 4, 2, 1, 3, 0, 6)))  # x,y,ph,t,z,fr,c
         else:
             return data
 
+    def getframe(self, channel=0, z=0, phase=0, timestamp=0, frequency=0, subtractbackground=True, squeeze=True):
+        """
+        Get a single frame from the .fli file
+        :param squeeze:
+        :param subtractbackground:
+        :param timestamp:
+        :param channel:
+        :param z:
+        :param phase:
+        :param frequency:
+        :return:
+        """
+        # check input
+        if channel > (self._di['IMSize'][0] - 1):
+            print('WARNING: Channel out of range')
+            return 0
+        if z > (self._di['IMSize'][3] - 1):
+            print('WARNING: Z out of range')
+            return 0
+        if phase > (self._di['IMSize'][4] - 1):
+            print('WARNING: Phase out of range')
+            return 0
+        if timestamp > (self._di['IMSize'][5] - 1):
+            print('WARNING: Timestamp out of range')
+            return 0
+        if frequency > (self._di['IMSize'][6] - 1):
+            print('WARNING: Frequency out of range')
+            return 0
+        # get pointer
+        return 0
+        # get data
+
+    @staticmethod
+    def _convert_12_bit(data, datatype):
+        datasize = int((data.size / 3) * 2)
+        byte1 = data[0::3]  # contains the 8 least-significant bits of the even pixels
+        byte2 = data[1::3]  # contains the 4 most-significant bits of the even pixels and 4 least-significant of the odd pixels
+        byte3 = data[2::3]  # contains the 8 least-significant bits of the odd pixels
+        data = np.zeros(datasize, dtype=datatype[0])
+        data[0::2] = byte1.astype(np.uint16) + np.left_shift(np.left_shift(byte2, 4).astype(np.uint8).astype(np.uint16), 4)
+        data[1::2] = np.left_shift(byte3.astype(np.uint16), 4) + np.right_shift(byte2, 4).astype(np.uint8)
+        return data
+
+    def _get_data_from_file(self, offset, datatype, datasize):
+        if datatype[1] == 12:  # 12 bit per pixel packed per 2 in 3 bytes
+            count = int(3 * (datasize / 2))
+            dtype = np.uint8
+        else:
+            count = int(datasize)
+            dtype = datatype[0]
+        return np.fromfile(self.path, offset=offset, dtype=dtype, count=count)
+
     def _get_data_info(self):
-        type_dict = {'UINT16': np.uint16}
-        data_info = {'IMSize': (int(self.header['FLIMIMAGE']['LAYOUT']['channels']),
-                                int(self.header['FLIMIMAGE']['LAYOUT']['x']),
-                                int(self.header['FLIMIMAGE']['LAYOUT']['y']),
-                                int(self.header['FLIMIMAGE']['LAYOUT']['z']),
-                                int(self.header['FLIMIMAGE']['LAYOUT']['phases']),
-                                int(self.header['FLIMIMAGE']['LAYOUT']['timestamps']),
-                                int(self.header['FLIMIMAGE']['LAYOUT']['frequencies'])),
-                     'BGSize': (int(self.header['FLIMIMAGE']['BACKGROUND']['channels']),
-                                int(self.header['FLIMIMAGE']['BACKGROUND']['x']),
-                                int(self.header['FLIMIMAGE']['BACKGROUND']['y']),
-                                int(self.header['FLIMIMAGE']['BACKGROUND']['z']),
-                                int(self.header['FLIMIMAGE']['BACKGROUND']['phases']),
-                                int(self.header['FLIMIMAGE']['BACKGROUND']['timestamps']),
-                                int(self.header['FLIMIMAGE']['BACKGROUND']['frequencies'])),
-                     'IMType': type_dict[self.header['FLIMIMAGE']['LAYOUT']['datatype']],
-                     'BGType': type_dict[self.header['FLIMIMAGE']['BACKGROUND']['datatype']],
-                     'Compression': int(self.header['FLIMIMAGE']['INFO']['compression'])}
+        type_dict = {'UINT8': (np.uint8, 8),
+                     'UINT16': (np.uint16, 16),
+                     'UINT12': (np.uint16, 12),
+                     'UINT32': (np.uint32, 32),
+                     'INT8': (np.int8, 8),
+                     'INT16': (np.int16, 16),
+                     'INT32': (np.int32, 32),
+                     'REAL32': (np.float32, 32),
+                     'REAL64': (np.float64, 64)}
+        if 'FLIMIMAGE' not in self.header:
+            print('WARNING: FLIMIMAGE not found in header')
+            return {}
+        if 'LAYOUT' not in self.header['FLIMIMAGE']:
+            print('WARNING: LAYOUT not found in header')
+            return {}
+
+        # read data layout. Default for each dimension is 1. Default datatype is UINT8
+        data_info = {'IMSize': (int(self.header['FLIMIMAGE']['LAYOUT'].get('channels', 1)),
+                                int(self.header['FLIMIMAGE']['LAYOUT'].get('x', 1)),
+                                int(self.header['FLIMIMAGE']['LAYOUT'].get('y', 1)),
+                                int(self.header['FLIMIMAGE']['LAYOUT'].get('z', 1)),
+                                int(self.header['FLIMIMAGE']['LAYOUT'].get('phases', 1)),
+                                int(self.header['FLIMIMAGE']['LAYOUT'].get('timestamps', 1)),
+                                int(self.header['FLIMIMAGE']['LAYOUT'].get('frequencies', 1))),
+                     'IMType': type_dict[self.header['FLIMIMAGE']['LAYOUT'].get('datatype', 'UINT8')]}
+
+        if 'hasDarkImage' in self.header['FLIMIMAGE']['LAYOUT']:
+            data_info['BG_present'] = bool(int(self.header['FLIMIMAGE']['LAYOUT'].get('hasDarkImage', 0)))
+            data_info['BGSize'] = list(data_info['IMSize'])
+            d = [0, 3, 4, 5]
+            for dim in d:
+                data_info['BGSize'][dim] = 1
+            data_info['BGSize'] = tuple(data_info['BGSize'])
+            data_info['BGType'] = data_info['IMType']
+
+        if 'BACKGROUND' in self.header['FLIMIMAGE']:
+            data_info['BG_present'] = True
+            data_info['BGSize'] = (int(self.header['FLIMIMAGE']['BACKGROUND'].get('channels', 1)),
+                                   int(self.header['FLIMIMAGE']['BACKGROUND'].get('x', 1)),
+                                   int(self.header['FLIMIMAGE']['BACKGROUND'].get('y', 1)),
+                                   int(self.header['FLIMIMAGE']['BACKGROUND'].get('z', 1)),
+                                   int(self.header['FLIMIMAGE']['BACKGROUND'].get('phases', 1)),
+                                   int(self.header['FLIMIMAGE']['BACKGROUND'].get('timestamps', 1)),
+                                   int(self.header['FLIMIMAGE']['BACKGROUND'].get('frequencies', 1)))
+            data_info['BGType'] = type_dict[self.header['FLIMIMAGE']['BACKGROUND'].get('datatype', 'UINT8')]
+
+        if 'INFO' not in self.header['FLIMIMAGE']:
+            print('WARNING: INFO not found in Header')
+            data_info['Compression'] = 0
+            return data_info
+        data_info['Compression'] = int(self.header['FLIMIMAGE']['INFO'].get('compression', 0))
         return data_info
 
     def __str__(self):
