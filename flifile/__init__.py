@@ -141,7 +141,9 @@ class FliFile:
         data = data.reshape(self._di['IMSize'][::-1])
         if subtractbackground:
             self._bg = self.getbackground(squeeze=False)
+            mask = np.where(data < self._bg)
             data = data - self._bg
+            data[mask] = 0
         if squeeze:
             data = np.squeeze(data.transpose((5, 4, 2, 1, 3, 0, 6)))  # x,y,ph,t,z,fr,c
 
