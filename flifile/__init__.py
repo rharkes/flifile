@@ -114,6 +114,7 @@ class FliFile:
         fid.close()
         self._di = self._get_data_info()
 
+
     def getdata(self, subtractbackground=True, squeeze=True):
         """
         Returns the data from the .fli file. If squeeze is False the data is retured with these dimensions:
@@ -137,7 +138,7 @@ class FliFile:
             data = self._get_data_from_file(offset=self._datastart, datatype=self._di['IMType'], datasize=datasize)
 
         if self._di['IMType'][1] == 12:  # 12 bit per pixel packed per 2 in 3 bytes
-            data = self._convert_12_bit(data, datatype=self._di['IMType'])
+            data = self._convert_12_bit(data, datatype=self._di['IMType'], packingtype=self._di['IMPacking'])
         data = data.reshape(self._di['IMSize'][::-1])
         if subtractbackground:
             self._bg = self.getbackground(squeeze=False)
@@ -172,7 +173,7 @@ class FliFile:
                 datasize = np.prod(self._di['BGSize'], dtype=np.uint64)
                 data = self._get_data_from_file(offset=int(offset), datatype=self._di['BGType'], datasize=datasize)
                 if self._di['BGType'][1] == 12:  # 12 bit per pixel packed per 2 in 3 bytes
-                    data = self._convert_12_bit(data, datatype=self._di['BGType'])
+                    data = self._convert_12_bit(data, datatype=self._di['BGType'], packingtype=self._di['BGPacking'])
                 data = data.reshape(self._di['BGSize'][::-1])
         if squeeze:
             return np.squeeze(data.transpose((5, 4, 2, 1, 3, 0, 6)))  # x,y,ph,t,z,fr,c
@@ -212,14 +213,20 @@ class FliFile:
         # get data
 
     @staticmethod
-    def _convert_12_bit(data, datatype):
+    def _convert_12_bit(data, datatype, packingtype='lsb'):
         datasize = int((data.size / 3) * 2)
         byte1 = data[0::3]  # contains the 8 least-significant bits of the even pixels
         byte2 = data[1::3]  # contains the 4 most-significant bits of the even pixels and 4 least-significant of the odd pixels
         byte3 = data[2::3]  # contains the 8 least-significant bits of the odd pixels
         data = np.zeros(datasize, dtype=datatype[0])
-        data[0::2] = byte1.astype(np.uint16) + np.left_shift(np.left_shift(byte2, 4).astype(np.uint8).astype(np.uint16), 4)
-        data[1::2] = np.left_shift(byte3.astype(np.uint16), 4) + np.right_shift(byte2, 4).astype(np.uint8)
+        if packingtype == 'lsb':
+            data[0::2] = byte1.astype(np.uint16) + np.left_shift(np.left_shift(byte2, 4).astype(np.uint8).astype(np.uint16), 4)
+            data[1::2] = np.left_shift(byte3.astype(np.uint16), 4) + np.right_shift(byte2, 4).astype(np.uint8)
+        elif packingtype == 'msb':
+            data[0::2] = np.left_shift(byte1.astype(np.uint16), 4) + np.right_shift(byte2, 4).astype(np.uint8)
+            data[1::2] = np.left_shift(np.left_shift(byte2, 4).astype(np.uint8).astype(np.uint16), 4) + byte3.astype(np.uint16)
+        else:
+            raise ValueError('Data has no valid packing type')
         return data
 
     def _get_data_from_file(self, offset, datatype, datasize):
@@ -248,7 +255,7 @@ class FliFile:
             print('WARNING: LAYOUT not found in header')
             return {}
 
-        # read data layout. Default for each dimension is 1. Default datatype is UINT8
+        # read data layout. Default for each dimension is 1. Default datatype is UINT8. Default packing is lsb.
         data_info = {'IMSize': (int(self.header['FLIMIMAGE']['LAYOUT'].get('channels', 1)),
                                 int(self.header['FLIMIMAGE']['LAYOUT'].get('x', 1)),
                                 int(self.header['FLIMIMAGE']['LAYOUT'].get('y', 1)),
@@ -256,7 +263,8 @@ class FliFile:
                                 int(self.header['FLIMIMAGE']['LAYOUT'].get('phases', 1)),
                                 int(self.header['FLIMIMAGE']['LAYOUT'].get('timestamps', 1)),
                                 int(self.header['FLIMIMAGE']['LAYOUT'].get('frequencies', 1))),
-                     'IMType': type_dict[self.header['FLIMIMAGE']['LAYOUT'].get('datatype', 'UINT8')]}
+                     'IMType': type_dict[self.header['FLIMIMAGE']['LAYOUT'].get('datatype', 'UINT8')],
+                     'IMPacking': self.header['FLIMIMAGE']['LAYOUT'].get('packing', 'lsb')}
 
         if 'hasDarkImage' in self.header['FLIMIMAGE']['LAYOUT']:
             data_info['BG_present'] = bool(int(self.header['FLIMIMAGE']['LAYOUT'].get('hasDarkImage', 0)))
@@ -266,6 +274,7 @@ class FliFile:
                 data_info['BGSize'][dim] = 1
             data_info['BGSize'] = tuple(data_info['BGSize'])
             data_info['BGType'] = data_info['IMType']
+            data_info['BGPacking'] = data_info['IMPacking']
 
         if 'BACKGROUND' in self.header['FLIMIMAGE']:
             data_info['BG_present'] = True
