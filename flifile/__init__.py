@@ -59,8 +59,14 @@ class FliFile:
         value = []
         pv_pairs = {}
         sections = {}
-        while True:
+        version = 1.0
+        counter = 0
+
+        self.headerString = ""
+
+        while "{END}" not in self.headerString:
             byte = fid.read(1)
+            self.headerString += byte.decode("utf-8")
             if byte == b'{':
                 if current_chapter:  # there is a chapter finished
                     sections[current_section] = pv_pairs  # add last pv_pairs to the sections
@@ -112,7 +118,12 @@ class FliFile:
             if mode == 3:
                 value.append(byte.decode("utf-8"))
         fid.close()
-        self._di = self._get_data_info()
+        if "version = 2.0" in self.headerString:
+            self._datastart = len(self.headerString)
+            self._di = self._get_data_info2()
+        else:
+            self._di = self._get_data_info()
+
 
 
     def getdata(self, subtractbackground=True, squeeze=True):
@@ -293,6 +304,130 @@ class FliFile:
             return data_info
         data_info['Compression'] = int(self.header['FLIMIMAGE']['INFO'].get('compression', 0))
         return data_info
+
+    def _get_data_info2(self):
+                     # 'YUV411Packed': (np.uint8, 8),
+                     # 'YUV411_8_UYYVYY': (np.uint8, 8),
+                     # 'YCbCr422_8': (np.uint8, 8),
+                     # 'YUV422Packed': (np.uint8, 8),
+                     # 'YUV444Packed': (np.uint8, 8)}
+        if '{FLIMIMAGE}' not in self.headerString:
+            print('WARNING: FLIMIMAGE not found in header')
+            return {}
+        channels = 0
+        x = 0
+        y = 0
+        z = 0
+        phases = 0
+        timestamps = 0
+        frequencies = 0
+        pixelFormat = 0
+        data_info = {}
+        data_info["IMSize"] = [1, 1, 1, 1, 1, 1, 1]
+        self.parseHeader(data_info)
+        data_info['BGSize'] = list(data_info['IMSize'])
+        d = [0, 3, 4, 5]
+        for dim in d:
+            data_info['BGSize'][dim] = 1
+        data_info['BGSize'] = tuple(data_info['BGSize'])
+        data_info['BGType'] = data_info['IMType']
+        data_info['BGPacking'] = data_info['IMPacking']
+        data_info['Compression'] = 0
+        return data_info
+
+    def parseHeader(self, data_info):
+        for line in iter(self.headerString.splitlines()):
+            if '=' not in line:
+                continue
+            words = line.split('=')
+            key = words[0].strip()
+            value = words[1].strip()
+            self.setParamValue(data_info, key, value)
+
+
+    def setParamValue(self, data_info, key: str, value):
+        type_dict = {
+            'BayerBG16': (np.uint16, 16),
+            'BayerGB16': (np.uint16, 16),
+            'BayerRG10': (np.uint16, 16),
+            'BayerRG12': (np.uint16, 16),
+            'BayerRG16': (np.uint16, 16),
+            'Mono10': (np.uint16, 16),
+            'Mono12': (np.uint16, 16),
+            'Mono14': (np.uint16, 16),
+            'Mono16': (np.uint16, 16),  
+            'Mono8': (np.uint8, 8),
+            'Mono10p': (np.uint16, 10 ),
+            'Mono10pmsb': (np.uint16, 10),
+            'BayerBG12:': (np.uint16, 16),
+            'BayerBG12p:': (np.uint16, 12),
+            'BayerBG12pmsb': (np.uint16, 12),
+            'BayerGB12': (np.uint16, 16),
+            'BayerGB12p': (np.uint16, 12 ),
+            'BayerGB12pmsb': (np.uint16, 12),
+            'BayerRG12p': (np.uint16, 12),
+            'BayerRG12pmsb': (np.uint16, 12),
+            'BayerRG12Packed': (np.uint16, 12), 
+            'Mono12p': (np.uint16, 12 ),
+            'Mono12pmsb': (np.uint16, 12 ),
+            'Mono12Packed': (np.uint16, 12),
+            'Mono14p': (np.uint16, 14),
+            'BayerBG8': (np.uint8, 8),
+            'BayerGB8': (np.uint8, 8),
+            'BGR8': (np.uint8, 8),
+            'BGR8Packed': (np.uint8, 8),
+            'RGB8': (np.uint8, 8),
+            'RGB8Packed': (np.uint8, 8)}
+        if key == "nrOfDarkImages":
+            data_info['BG_present'] = value > 0
+        if key == "channels":
+            if value == '{}':
+                data_info['IMSize'][0] = 1
+            else:
+                data_info['IMSize'][0] = value;
+        if key == "x":
+            data_info['IMSize'][1] = int(value)
+        if key == "y":
+            data_info['IMSize'][2] = int(value)
+        if key == "z":
+            data_info['IMSize'][3] = int(value)
+        if key == "phases":
+            if value == '[]':
+                data_info['IMSize'][4] = 1
+            else: 
+                data_info['IMSize'][4] = value
+        if key == "numberOfFrames":
+            data_info['IMSize'][5] = int(value)
+        if key == "frequencies":
+            if value == '[]':
+                data_info['IMSize'][6] = 1
+            else:
+                data_info['IMSize'][6] = int(value) 
+        if key == "pixelFormat":
+            data_info['IMType'] = type_dict[value]
+            self.setPacking(value, data_info)
+        if key == "numberOfDarkImages":
+            data_info['BG_present'] = int(value) > 0
+
+
+
+    def setPacking(self, pixelFormat: str, data_info):
+        if pixelFormat == 'Mono10p' or\
+            pixelFormat == 'Mono12p' or\
+            pixelFormat == 'mono14p' or\
+            pixelFormat == 'BayerBG12p:' or\
+            pixelFormat == 'BayerGB12p' or\
+            pixelFormat == 'BayerRG12p':
+            data_info['IMPacking'] = "lsb"
+        elif pixelFormat == 'BayerRG12pmsb' or\
+            pixelFormat == 'BayerBG12pmsb' or\
+            pixelFormat == 'BayerGB12pmsb' or\
+            pixelFormat == 'Mono10pmsb' or\
+            pixelFormat == 'Mono12pmsb':
+            data_info['IMPacking'] = "msb"
+        else:
+            data_info['IMPacking'] = "lsb"
+
 
     def __str__(self):
         return self.path.name
