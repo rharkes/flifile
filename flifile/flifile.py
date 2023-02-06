@@ -303,9 +303,9 @@ class FliFile:
             "REAL64": (np.float64, 64),
         }
         if "FLIMIMAGE" not in self.header:
-            raise Exception("FLIMIMAGE not found in header")
+            raise KeyError(f"FLIMIMAGE not found in header of {self}")
         if "LAYOUT" not in self.header["FLIMIMAGE"]:
-            raise Exception("LAYOUT not found in header")
+            raise KeyError(f"LAYOUT not found in header of {self}")
         self.datatype = Datatypes[
             self.header["FLIMIMAGE"]["LAYOUT"].get("datatype", "UINT8")
         ]
