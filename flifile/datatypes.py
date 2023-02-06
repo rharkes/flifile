@@ -57,13 +57,13 @@ class Datatypes(Enum):
         self.v3 = v3
 
     @property
-    def nptype(self):
+    def nptype(self) -> np.dtype:
         return self.v1
 
     @property
-    def bits(self):
+    def bits(self) -> int:
         return self.v2
 
     @property
-    def packing(self):
+    def packing(self) -> Packing:
         return self.v3
