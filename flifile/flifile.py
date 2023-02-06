@@ -172,7 +172,7 @@ class FliFile:
         """
         if not self._di["BG_present"]:
             print("WARNING: No background present in file")
-            return 0
+            return np.array([])
         if self._bg is not None:
             data = self._bg
         else:
@@ -219,7 +219,7 @@ class FliFile:
         frequency: int = 0,
         subtractbackground: bool = True,
         squeeze: bool = True,
-    ):
+    ) -> np.ndarray:
         """
         -NOT IMPLEMENTED-
         Get a single frame from the .fli file
@@ -235,21 +235,21 @@ class FliFile:
         # check input
         if channel > (self._di["IMSize"][0] - 1):
             print("WARNING: Channel out of range")
-            return 0
+            return np.array([])
         if z > (self._di["IMSize"][3] - 1):
             print("WARNING: Z out of range")
-            return 0
+            return np.array([])
         if phase > (self._di["IMSize"][4] - 1):
             print("WARNING: Phase out of range")
-            return 0
+            return np.array([])
         if timestamp > (self._di["IMSize"][5] - 1):
             print("WARNING: Timestamp out of range")
-            return 0
+            return np.array([])
         if frequency > (self._di["IMSize"][6] - 1):
             print("WARNING: Frequency out of range")
-            return 0
+            return np.array([])
         # get pointer
-        return 0
+        return np.array([])
         # get data
 
     @staticmethod
