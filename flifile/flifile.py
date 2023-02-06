@@ -1,6 +1,5 @@
 """
-Python support for the the Lambert Instruments .fli file
-Version 1.2.0
+Python support for the Lambert Instruments .fli file
 
 (c) R.Harkes NKI
 
