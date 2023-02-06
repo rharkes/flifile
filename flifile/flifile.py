@@ -20,6 +20,7 @@ import os
 from pathlib import Path
 import numpy as np
 import zlib
+import logging
 from .datatypes import Datatypes
 
 
@@ -46,6 +47,7 @@ class FliFile:
         if self.path.suffix != ".fli":
             raise ValueError("Not a valid extension")
         fid = self.path.open(mode="rb")
+        self.log = logging.getLogger("flifile")
         self.header = {}
         self._bg = np.array([])  # type:np.ndarray
         self.datatype = Datatypes.UINT8  # type:Datatypes
@@ -171,13 +173,13 @@ class FliFile:
         :return: numpy.ndarray
         """
         if not self._di["BG_present"]:
-            print("WARNING: No background present in file")
+            self.log.warning("WARNING: No background present in file")
             return np.array([])
         if self._bg is not None:
             data = self._bg
         else:
             if self._di["Compression"] > 0:
-                print(
+                self.log.warning(
                     "WARNING: Getting background before getting data is inefficient in compressed files."
                 )
                 self.getdata(subtractbackground=True, squeeze=False)
@@ -234,19 +236,19 @@ class FliFile:
         """
         # check input
         if channel > (self._di["IMSize"][0] - 1):
-            print("WARNING: Channel out of range")
+            self.log.warning("WARNING: Channel out of range")
             return np.array([])
         if z > (self._di["IMSize"][3] - 1):
-            print("WARNING: Z out of range")
+            self.log.warning("WARNING: Z out of range")
             return np.array([])
         if phase > (self._di["IMSize"][4] - 1):
-            print("WARNING: Phase out of range")
+            self.log.warning("WARNING: Phase out of range")
             return np.array([])
         if timestamp > (self._di["IMSize"][5] - 1):
-            print("WARNING: Timestamp out of range")
+            self.log.warning("WARNING: Timestamp out of range")
             return np.array([])
         if frequency > (self._di["IMSize"][6] - 1):
-            print("WARNING: Frequency out of range")
+            self.log.warning("WARNING: Frequency out of range")
             return np.array([])
         # get pointer
         return np.array([])
@@ -301,11 +303,9 @@ class FliFile:
             "REAL64": (np.float64, 64),
         }
         if "FLIMIMAGE" not in self.header:
-            print("WARNING: FLIMIMAGE not found in header")
-            return {}
+            raise Exception("FLIMIMAGE not found in header")
         if "LAYOUT" not in self.header["FLIMIMAGE"]:
-            print("WARNING: LAYOUT not found in header")
-            return {}
+            raise Exception("LAYOUT not found in header")
         self.datatype = Datatypes[
             self.header["FLIMIMAGE"]["LAYOUT"].get("datatype", "UINT8")
         ]
@@ -354,7 +354,7 @@ class FliFile:
             ]
 
         if "INFO" not in self.header["FLIMIMAGE"]:
-            print("WARNING: INFO not found in Header")
+            self.log.warning("WARNING: INFO not found in Header")
             data_info["Compression"] = 0
             return data_info
         data_info["Compression"] = int(
