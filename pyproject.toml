@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flifile"
+version = "1.3.0"
+description = "Read flifiles"
+readme = "README.md"
+authors = [{ name = "Rolf Harkes", email = "r.harkes@nki.nl" }]
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["flifile", "lambert Instruments"]
+dependencies = [
+    "numpy",
+]
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+dev = ["black", "bumpver", "pytest", "setuptools", "build", "twine"]
+
+[project.urls]
+Homepage = "https://github.com/rharkes/flifile"
+
+[tool.bumpver]
+current_version = "1.3.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"',
+    'version = "{version}"',
+]
+"flifile/version.py" = [
+    "{version}"
+]
+
