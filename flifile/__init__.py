@@ -59,8 +59,6 @@ class FliFile:
         value = []
         pv_pairs = {}
         sections = {}
-        version = 1.0
-        counter = 0
 
         self.headerString = ""
 
