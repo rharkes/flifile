@@ -17,9 +17,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+import os
 from pathlib import Path
 import numpy as np
 import zlib
+from .datatypes import Datatypes
 
 
 class FliFile:
@@ -34,7 +36,7 @@ class FliFile:
     - _di: dictionary with data information based on the header
     """
 
-    def __init__(self, filepath):
+    def __init__(self, filepath: os.PathLike | str) -> None:
         # open file
         if isinstance(filepath, str):
             self.path = Path(filepath)
@@ -46,7 +48,8 @@ class FliFile:
             raise ValueError('Not a valid extension')
         fid = self.path.open(mode='rb')
         self.header = {}
-        self._bg = None
+        self._bg = np.array([])  # type:np.ndarray
+        self.datatype = Datatypes.UINT8  # type:Datatypes
         # get header information
         # Lines in the header are {Chapter} or [section] or parameter = value
         mode = 0  # default mode, reading parameter
@@ -114,7 +117,7 @@ class FliFile:
         fid.close()
         self._di = self._get_data_info()
 
-    def getdata(self, subtractbackground=True, squeeze=True):
+    def getdata(self, subtractbackground: bool = True, squeeze: bool = True) -> np.array:
         """
         Returns the data from the .fli file. If squeeze is False the data is retured with these dimensions:
         frequency,time,phase,z,y,x,channel
@@ -149,7 +152,7 @@ class FliFile:
 
         return data
 
-    def getbackground(self, squeeze=True):
+    def getbackground(self, squeeze: bool = True) -> np.ndarray:
         """
         Returns the background data from the .fli file. If squeeze is False the data is retured with these dimensions:
         frequency,time,phase,z,y,x,channel
@@ -179,8 +182,10 @@ class FliFile:
         else:
             return data
 
-    def getframe(self, channel=0, z=0, phase=0, timestamp=0, frequency=0, subtractbackground=True, squeeze=True):
+    def getframe(self, channel: int = 0, z: int = 0, phase: int = 0, timestamp: int = 0, frequency: int = 0,
+                 subtractbackground: bool = True, squeeze: bool = True):
         """
+        -NOT IMPLEMENTED-
         Get a single frame from the .fli file
         :param squeeze:
         :param subtractbackground:
@@ -215,8 +220,7 @@ class FliFile:
     def _convert_12_bit(data, datatype, packingtype='lsb'):
         datasize = int((data.size / 3) * 2)
         byte1 = data[0::3]  # contains the 8 least-significant bits of the even pixels
-        byte2 = data[
-                1::3]  # contains the 4 most-significant bits of the even pixels and 4 least-significant of the odd pixels
+        byte2 = data[1::3]  # contains the 4 most-significant bits of the even pixels and 4 least-significant of the odd pixels
         byte3 = data[2::3]  # contains the 8 least-significant bits of the odd pixels
         data = np.zeros(datasize, dtype=datatype[0])
         if packingtype == 'lsb':
@@ -256,7 +260,7 @@ class FliFile:
         if 'LAYOUT' not in self.header['FLIMIMAGE']:
             print('WARNING: LAYOUT not found in header')
             return {}
-
+        self.datatype = Datatypes[self.header['FLIMIMAGE']['LAYOUT'].get('datatype', 'UINT8')]
         # read data layout. Default for each dimension is 1. Default datatype is UINT8. Default packing is lsb.
         data_info = {'IMSize': (int(self.header['FLIMIMAGE']['LAYOUT'].get('channels', 1)),
                                 int(self.header['FLIMIMAGE']['LAYOUT'].get('x', 1)),
