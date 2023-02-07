@@ -26,9 +26,9 @@ def parseheader(headerstring) -> dict:
     header = {}
     for line in headerstring.split(b"\n"):
         if line.startswith(b"{"):
-            chapter = line[1:-1].decode("utf-8")
+            chapter = line.decode("utf-8").strip()[1:-1]
         if line.startswith(b"["):
-            section = line[1:-1].decode("utf-8")
+            section = line.decode("utf-8").strip()[1:-1]
         else:
             kvp = line.split(b"=")
             if len(kvp) != 2:
