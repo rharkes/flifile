@@ -1,0 +1,11 @@
+{FLIMDATA}
+[image]
+x=1
+y=2
+[background]
+x=123
+y=32
+{CAMERADATA}
+[something]
+why=because
+{END}vasoinafi--98y23r97g8-qgwrepijuhafiujh b -08Y124-97y8 1280U7G
