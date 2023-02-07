@@ -37,5 +37,5 @@ def parseheader(headerstring) -> dict:
                 header[chapter] = {}
             if section not in header[chapter]:
                 header[chapter][section] = {}
-            header[chapter][section][kvp[0].decode("utf-8")] = kvp[1].decode("utf-8")
+            header[chapter][section][kvp[0].decode("utf-8").strip()] = kvp[1].decode("utf-8").strip()
     return header
