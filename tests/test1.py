@@ -10,16 +10,12 @@ def file():
 
 
 @pytest.fixture
-def headerstring():
-    return b'{FLIMDATA}\n[image]\nx=1\ny=2\n[background]\nx=123\ny=32\n{CAMERADATA}\n[something]\nwhy=because\n{END}'
+def header():
+    return {'CAMERADATA': {'something': {'why': 'because'}},
+            'FLIMDATA': {'background': {'x': '123', 'y': '32'},
+                         'image': {'x': '1', 'y': '2'}},
+            'datastart': 93}
 
 
-@pytest.fixture
-def datastart():
-    return 93
-
-
-def testheader(file, headerstring, datastart):
-    h = readheader(file)
-    assert (h['headerstring'] == headerstring)
-    assert (h['datastart'] == datastart)
+def testheader(file, header):
+    assert (readheader(file) == header)
