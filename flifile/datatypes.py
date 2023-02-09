@@ -11,17 +11,17 @@ class Format(Enum):
     Mono12 = 5
     Mono12p = 6
     Mono12pmsb = 7
-    Mono12Packed = 8 # GigE 12 packing
+    Mono12Packed = 8  # GigE 12 packing
     Mono14 = 9
     Mono14p = 10
     Mono16 = 11
     BGR8 = 12
-    BGR8Packed = 13 # GigE name for BGR8
+    BGR8Packed = 13  # GigE name for BGR8
     RGB8 = 14
-    RGB8Packed = 15 # GigE name for RGB8
+    RGB8Packed = 15  # GigE name for RGB8
     BayerBG8 = 16
     BayerBG12 = 17
-    BayerBG12p = 18 
+    BayerBG12p = 18
     BayerBG12pmsb = 19
     BayerBG16 = 20
     BayerGB8 = 21
@@ -49,7 +49,7 @@ class Format(Enum):
     YUV444Packed = 43
 
 
-class PixelFormat():
+class PixelFormat:
     def __init__(self, pixelFormat: str):
         self.pixelFormat = self.setFormat(pixelFormat)
         self.bitdepth = self.setBitDepth(self.pixelFormat)
@@ -147,63 +147,179 @@ class PixelFormat():
             return Format.YUV444Packed
 
     def setBitDepth(self, format: Format):
-        if format in [Format.Mono8, Format.BGR8, Format.RGB8, Format.BayerGB8, Format.BayerRG8,\
-                Format.BayerGR8, Format.BayerBG8, Format.YUV411Packed, Format.YUV422Packed, Format.YUV411_8_UYYVYY,\
-                Format.YUV444Packed, Format.YCbCr422_8, Format.BGR8Packed, Format.RGB8Packed]:
+        if format in [
+            Format.Mono8,
+            Format.BGR8,
+            Format.RGB8,
+            Format.BayerGB8,
+            Format.BayerRG8,
+            Format.BayerGR8,
+            Format.BayerBG8,
+            Format.YUV411Packed,
+            Format.YUV422Packed,
+            Format.YUV411_8_UYYVYY,
+            Format.YUV444Packed,
+            Format.YCbCr422_8,
+            Format.BGR8Packed,
+            Format.RGB8Packed
+        ]:
             return 8 
-        if format in [Format.Mono10, Format.Mono10p, Format.BayerGR10, Format.Mono10pmsb,\
-                Format.BayerRG10]:
+        if format in [
+            Format.Mono10,
+            Format.Mono10p,
+            Format.BayerGR10,
+            Format.Mono10pmsb,
+            Format.BayerRG10
+        ]:
             return 10
-        if format in [Format.Mono12, Format.Mono12p, Format.Mono12Packed, Format.Mono12pmsb,\
-                Format.BayerBG12, Format.BayerBG12p, Format.BayerBG12pmsb, Format.BayerGB12,\
-                Format.BayerGB12p, Format.BayerGB12pmsb, Format.BayerGR12, Format.BayerGR12p,\
-                Format.BayerGR12pmsb, Format.BayerRG12, Format.BayerRG12p, Format.BayerRG12pmsb,\
-                Format.BayerRG12Packed]:
+        if format in [
+            Format.Mono12,
+            Format.Mono12p,
+            Format.Mono12Packed,
+            Format.Mono12pmsb,
+            Format.BayerBG12,
+            Format.BayerBG12p,
+            Format.BayerBG12pmsb,
+            Format.BayerGB12,
+            Format.BayerGB12p,
+            Format.BayerGB12pmsb,
+            Format.BayerGR12,
+            Format.BayerGR12p,
+            Format.BayerGR12pmsb,
+            Format.BayerRG12,
+            Format.BayerRG12p,
+            Format.BayerRG12pmsb,
+            Format.BayerRG12Packed
+        ]:
             return 12
         if format in [Format.Mono14, Format.Mono14p]:
             return 14
-        if format in [Format.BayerBG16, Format.BayerGB16, Format.BayerGR16, Format.BayerRG16, Format.Mono16]:
+        if format in [
+            Format.BayerBG16,
+            Format.BayerGB16,
+            Format.BayerGR16,
+            Format.BayerRG16,
+            Format.Mono16
+        ]:
             return 16
 
     def setChannels(self, format:Format):
-        if format in [Format.Mono8, Format.BayerGB8, Format.BayerRG8,\
-                Format.BayerGR8, Format.BayerBG8, Format.Mono10, Format.Mono10p, Format.BayerGR10, Format.Mono10pmsb,\
-                Format.BayerRG10, Format.Mono12, Format.Mono12p, Format.Mono12Packed, Format.Mono12pmsb,\
-                Format.BayerBG12, Format.BayerBG12p, Format.BayerBG12pmsb, Format.BayerGB12,\
-                Format.BayerGB12p, Format.BayerGB12pmsb, Format.BayerGR12, Format.BayerGR12p,\
-                Format.BayerGR12pmsb, Format.BayerRG12, Format.BayerRG12p, Format.BayerRG12pmsb,\
-                Format.BayerRG12Packed, Format.Mono14, Format.Mono14p, Format.BayerBG16, Format.BayerGB16, \
-                Format.BayerGR16, Format.BayerRG16, Format.Mono16]:
+        if format in [
+            Format.Mono8,
+            Format.BayerGB8,
+            Format.BayerRG8,
+            Format.BayerGR8,
+            Format.BayerBG8,
+            Format.Mono10,
+            Format.Mono10p,
+            Format.BayerGR10,
+            Format.Mono10pmsb,
+            Format.BayerRG10,
+            Format.Mono12,
+            Format.Mono12p,
+            Format.Mono12Packed,
+            Format.Mono12pmsb,
+            Format.BayerBG12,
+            Format.BayerBG12p,
+            Format.BayerBG12pmsb,
+            Format.BayerGB12,
+            Format.BayerGB12p,
+            Format.BayerGB12pmsb,
+            Format.BayerGR12,
+            Format.BayerGR12p,
+            Format.BayerGR12pmsb,
+            Format.BayerRG12,
+            Format.BayerRG12p,
+            Format.BayerRG12pmsb,
+            Format.BayerRG12Packed,
+            Format.Mono14,
+            Format.Mono14p,
+            Format.BayerBG16,
+            Format.BayerGB16,
+            Format.BayerGR16,
+            Format.BayerRG16,
+            Format.Mono16
+        ]:
             return 1
-        if format in [Format.BGR8, Format.RGB8, Format.YUV411Packed, Format.YUV422Packed, Format.YUV411_8_UYYVYY,\
-                Format.YUV444Packed, Format.YCbCr422_8, Format.BGR8Packed, Format.RGB8Packed]:
+        if format in [
+            Format.BGR8,
+            Format.RGB8,
+            Format.YUV411Packed,
+            Format.YUV422Packed,
+            Format.YUV411_8_UYYVYY,
+            Format.YUV444Packed,
+            Format.YCbCr422_8,
+            Format.BGR8Packed,
+            Format.RGB8Packed
+        ]:
             return 3 
 
     def setNumpyType(self, format:Format):
-        if format in [Format.BayerBG16, Format.BayerGB16, Format.BayerRG10,\
-                Format.BayerRG12, Format.BayerRG16, Format.Mono10, Format.Mono12,\
-                Format.Mono14, Format.Mono16, Format.BayerBG12, Format.BayerGB12]:
+        if format in [
+            Format.BayerBG16,
+            Format.BayerGB16,
+            Format.BayerRG10,
+            Format.BayerRG12,
+            Format.BayerRG16,
+            Format.Mono10,
+            Format.Mono12,
+            Format.Mono14,
+            Format.Mono16,
+            Format.BayerBG12,
+            Format.BayerGB12
+        ]:
             return (np.uint16, 16) 
         if format in [Format.Mono10p, Format.Mono10pmsb]:
             return (np.uint16, 10)
-        if format in [Format.BayerBG12p, Format.BayerBG12pmsb, Format.BayerGB12p, Format.BayerGB12pmsb,\
-                Format.BayerRG12p, Format.BayerRG12pmsb, Format.BayerRG12Packed, Format.Mono12p,\
-                Format.Mono12pmsb, Format.Mono12Packed]:
+        if format in [
+            Format.BayerBG12p,
+            Format.BayerBG12pmsb,
+            Format.BayerGB12p,
+            Format.BayerGB12pmsb,
+            Format.BayerRG12p,
+            Format.BayerRG12pmsb,
+            Format.BayerRG12Packed,
+            Format.Mono12p,
+            Format.Mono12pmsb,
+            Format.Mono12Packed
+        ]:
             return (np.uint16, 12)
-        if format in [Format.Mono8, Format.BayerBG8, Format.BayerGB8, Format.BGR8, Format.BGR8Packed,\
-                Format.RGB8, Format.RGB8Packed, Format.YUV422Packed, Format.YUV411_8_UYYVYY, Format.YUV411Packed,\
-                Format.YUV444Packed, Format.YCbCr422_8]:
+        if format in [
+            Format.Mono8,
+            Format.BayerBG8,
+            Format.BayerGB8,
+            Format.BGR8,
+            Format.BGR8Packed,
+            Format.RGB8,
+            Format.RGB8Packed,
+            Format.YUV422Packed,
+            Format.YUV411_8_UYYVYY,
+            Format.YUV411Packed,
+            Format.YUV444Packed,
+            Format.YCbCr422_8
+        ]:
             return (np.uint8, 8)
         if format in [Format.Mono14p]:
             return (np.uint16, 14)
 
 
     def setPacking(self, format:Format):
-        if format in [Format.Mono10p, Format.Mono12p, Format.Mono14p,\
-                Format.BayerBG12p, Format.BayerGB12p, Format.BayerRG12p]:
+        if format in [
+            Format.Mono10p,
+            Format.Mono12p,
+            Format.Mono14p,
+            Format.BayerBG12p,
+            Format.BayerGB12p,
+            Format.BayerRG12p
+        ]:
             return "lsb"
-        elif format in [Format.BayerRG12pmsb, Format.BayerBG12pmsb, Format.BayerGB12pmsb,\
-                Format.Mono10pmsb, Format.Mono12pmsb]:
+        elif format in [
+            Format.BayerRG12pmsb,
+            Format.BayerBG12pmsb,
+            Format.BayerGB12pmsb,
+            Format.Mono10pmsb,
+            Format.Mono12pmsb
+        ]:
             return "msb"
         elif format in [Format.YUV411Packed, Format.YUV411_8_UYYVYY]:
             return "YUV411"
@@ -213,21 +329,60 @@ class PixelFormat():
             return "none"
 
     def setSizeBits(self, format:Format):
-        if format in [Format.BGR8, Format.BGR8Packed, Format.RGB8, Format.RGB8Packed,\
-                Format.YUV444Packed]:
+        if format in [
+            Format.BGR8,
+            Format.BGR8Packed,
+            Format.RGB8,
+            Format.RGB8Packed,
+            Format.YUV444Packed
+        ]:
             return 24
-        if format in [Format.BayerBG12, Format.BayerBG16, Format.BayerGB16, Format.BayerGB12,\
-                Format.BayerGR10, Format.BayerRG10, Format.BayerGR12, Format.BayerRG12,\
-                Format.Mono10, Format.Mono12, Format.Mono12, Format.Mono14, Format.Mono16,\
-                Format.BayerGR16, Format.BayerRG16, Format.YCbCr422_8, Format.YUV422Packed]:
+        if format in [
+            Format.BayerBG12,
+            Format.BayerBG16,
+            Format.BayerGB16,
+            Format.BayerGB12,
+            Format.BayerGR10,
+            Format.BayerRG10,
+            Format.BayerGR12,
+            Format.BayerRG12,
+            Format.Mono10,
+            Format.Mono12,
+            Format.Mono12,
+            Format.Mono14,
+            Format.Mono16,
+            Format.BayerGR16,
+            Format.BayerRG16,
+            Format.YCbCr422_8,
+            Format.YUV422Packed
+        ]:
             return 16
         if format in [Format.Mono14p]:
             return 14
-        if format in [Format.BayerBG12p, Format.BayerBG12pmsb, Format.BayerGB12p, Format.BayerGB12pmsb,\
-                Format.BayerGR12p, Format.BayerGR12pmsb, Format.BayerRG12p, Format.BayerRG12pmsb, Format.BayerRG12Packed,\
-                Format.Mono12p, Format.Mono12pmsb, Format.Mono12Packed, Format.YUV411Packed, Format.YUV411_8_UYYVYY]:
+        if format in [
+            Format.BayerBG12p,
+            Format.BayerBG12pmsb,
+            Format.BayerGB12p,
+            Format.BayerGB12pmsb,
+            Format.BayerGR12p,
+            Format.BayerGR12pmsb,
+            Format.BayerRG12p,
+            Format.BayerRG12pmsb,
+            Format.BayerRG12Packed,
+            Format.Mono12p,
+            Format.Mono12pmsb,
+            Format.Mono12Packed,
+            Format.YUV411Packed,
+            Format.YUV411_8_UYYVYY
+        ]:
             return 12
         if format in [Format.Mono10p, Format.Mono10pmsb]:
             return 10
-        if format in [Format.BayerBG8, Format.BayerGB8, Format.BayerGR8, Format.BayerRG8, Format.Mono8]:
+        if format in [
+            Format.BayerBG8,
+            Format.BayerGB8,
+            Format.BayerGR8,
+            Format.BayerRG8,
+            Format.Mono8
+        ]:
             return 8
