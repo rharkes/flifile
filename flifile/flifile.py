@@ -141,7 +141,7 @@ class FliFile:
             data = self._get_data_from_file(
                 offset=self.header["datastart"],
                 datatype=self._di["IMType"],
-                datasize=datasize
+                datasize=datasize,
             )
 
         if self._di["IMType"][1] == 12:  # 12 bit per pixel packed per 2 in 3 bytes

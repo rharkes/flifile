@@ -161,7 +161,7 @@ class PixelFormat:
             Format.YUV444Packed,
             Format.YCbCr422_8,
             Format.BGR8Packed,
-            Format.RGB8Packed
+            Format.RGB8Packed,
         ]:
             return 8 
         if format in [
@@ -169,7 +169,7 @@ class PixelFormat:
             Format.Mono10p,
             Format.BayerGR10,
             Format.Mono10pmsb,
-            Format.BayerRG10
+            Format.BayerRG10,
         ]:
             return 10
         if format in [
@@ -189,7 +189,7 @@ class PixelFormat:
             Format.BayerRG12,
             Format.BayerRG12p,
             Format.BayerRG12pmsb,
-            Format.BayerRG12Packed
+            Format.BayerRG12Packed,
         ]:
             return 12
         if format in [Format.Mono14, Format.Mono14p]:
@@ -199,7 +199,7 @@ class PixelFormat:
             Format.BayerGB16,
             Format.BayerGR16,
             Format.BayerRG16,
-            Format.Mono16
+            Format.Mono16,
         ]:
             return 16
 
@@ -238,7 +238,7 @@ class PixelFormat:
             Format.BayerGB16,
             Format.BayerGR16,
             Format.BayerRG16,
-            Format.Mono16
+            Format.Mono16,
         ]:
             return 1
         if format in [
@@ -250,7 +250,7 @@ class PixelFormat:
             Format.YUV444Packed,
             Format.YCbCr422_8,
             Format.BGR8Packed,
-            Format.RGB8Packed
+            Format.RGB8Packed,
         ]:
             return 3 
 
@@ -266,7 +266,7 @@ class PixelFormat:
             Format.Mono14,
             Format.Mono16,
             Format.BayerBG12,
-            Format.BayerGB12
+            Format.BayerGB12,
         ]:
             return (np.uint16, 16) 
         if format in [Format.Mono10p, Format.Mono10pmsb]:
@@ -281,7 +281,7 @@ class PixelFormat:
             Format.BayerRG12Packed,
             Format.Mono12p,
             Format.Mono12pmsb,
-            Format.Mono12Packed
+            Format.Mono12Packed,
         ]:
             return (np.uint16, 12)
         if format in [
@@ -296,7 +296,7 @@ class PixelFormat:
             Format.YUV411_8_UYYVYY,
             Format.YUV411Packed,
             Format.YUV444Packed,
-            Format.YCbCr422_8
+            Format.YCbCr422_8,
         ]:
             return (np.uint8, 8)
         if format in [Format.Mono14p]:
@@ -310,7 +310,7 @@ class PixelFormat:
             Format.Mono14p,
             Format.BayerBG12p,
             Format.BayerGB12p,
-            Format.BayerRG12p
+            Format.BayerRG12p,
         ]:
             return "lsb"
         elif format in [
@@ -318,7 +318,7 @@ class PixelFormat:
             Format.BayerBG12pmsb,
             Format.BayerGB12pmsb,
             Format.Mono10pmsb,
-            Format.Mono12pmsb
+            Format.Mono12pmsb,
         ]:
             return "msb"
         elif format in [Format.YUV411Packed, Format.YUV411_8_UYYVYY]:
@@ -334,7 +334,7 @@ class PixelFormat:
             Format.BGR8Packed,
             Format.RGB8,
             Format.RGB8Packed,
-            Format.YUV444Packed
+            Format.YUV444Packed,
         ]:
             return 24
         if format in [
@@ -354,7 +354,7 @@ class PixelFormat:
             Format.BayerGR16,
             Format.BayerRG16,
             Format.YCbCr422_8,
-            Format.YUV422Packed
+            Format.YUV422Packed,
         ]:
             return 16
         if format in [Format.Mono14p]:
@@ -373,7 +373,7 @@ class PixelFormat:
             Format.Mono12pmsb,
             Format.Mono12Packed,
             Format.YUV411Packed,
-            Format.YUV411_8_UYYVYY
+            Format.YUV411_8_UYYVYY,
         ]:
             return 12
         if format in [Format.Mono10p, Format.Mono10pmsb]:
@@ -383,6 +383,6 @@ class PixelFormat:
             Format.BayerGB8,
             Format.BayerGR8,
             Format.BayerRG8,
-            Format.Mono8
+            Format.Mono8,
         ]:
             return 8
