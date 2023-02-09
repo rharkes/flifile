@@ -2,6 +2,7 @@ from enum import Enum
 
 import numpy as np
 
+
 class Format(Enum):
     Mono8 = 1
     Mono10 = 2
@@ -46,6 +47,7 @@ class Format(Enum):
     YCbCr422_8 = 41
     YUV422Packed = 42
     YUV444Packed = 43
+
 
 class PixelFormat():
     def __init__(self, pixelFormat: str):
