@@ -18,10 +18,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import os
 from pathlib import Path
+from collections import deque
 import numpy as np
 import zlib
 import logging
-from .datatypes import Datatypes
+from .datatypes import *
+
 
 
 class FliFile:
@@ -36,7 +38,7 @@ class FliFile:
     - _di: dictionary with data information based on the header
     """
 
-    def __init__(self, filepath: os.PathLike | str) -> None:
+    def __init__(self, filepath) -> None:
         # open file
         if isinstance(filepath, str):
             self.path = Path(filepath)
@@ -50,7 +52,7 @@ class FliFile:
         self.log = logging.getLogger("flifile")
         self.header = {}
         self._bg = np.array([])  # type:np.ndarray
-        self.datatype = Datatypes.UINT8  # type:Datatypes
+        self.pixelFormat = PixelFormat("Mono8")  # type:Datatypes
         # get header information
         # Lines in the header are {Chapter} or [section] or parameter = value
         mode = 0  # default mode, reading parameter
@@ -63,64 +65,57 @@ class FliFile:
         value = []
         pv_pairs = {}
         sections = {}
+        path = Path(filepath)
+        self.version = 1.0
+        self.header = self.readheader(path)
+        if self.version == 2.0:
+            self._di = self._get_data_info2()
+            print(self._di)
+        else:
+            self._di = self._get_data_info()
+
+    def readheadersize(self, f) -> int:
+        queue = deque(b"     ", maxlen=5)
+        stop = deque([b"{", b"E", b"N", b"D", b"}"], maxlen=5)
         while True:
-            byte = fid.read(1)
-            if byte == b"{":
-                if current_chapter:  # there is a chapter finished
-                    sections[
-                        current_section
-                    ] = pv_pairs  # add last pv_pairs to the sections
-                    pv_pairs = {}
-                    current_parameter = ""
-                    self.header[
-                        current_chapter
-                    ] = sections  # add sections to the header
-                    sections = {}
-                    current_section = ""
-                mode = 1  # reading chapter
-                chapter = []
-                continue
-            if byte == b"}":
-                mode = 0  # end of chapter/section
-                current_chapter = "".join(chapter).strip()
-                chapter = []
-                if current_chapter == "END":
-                    self._datastart = fid.tell()
-                    break
-                continue
-            if byte == b"]":
-                mode = 0  # end of chapter/section
-                current_section = "".join(section).strip()
-                section = []
-                continue
-            if byte == b"[":
-                mode = 2  # reading section
-                if current_section:
-                    sections[current_section] = pv_pairs
-                    pv_pairs = {}
-                continue
-            if byte == b"=":
-                current_parameter = "".join(parameter).strip()
-                parameter = []
-                mode = 3  # reading value
-                continue
-            if byte == b"\n" or byte == b"\r":
-                if mode == 3:  # finished reading value. Must put with the parameter
-                    pv_pairs[current_parameter] = "".join(value).strip()
-                    value = []
-                mode = 0
-                continue
-            # a valid character to read
-            if mode == 0:
-                parameter.append(byte.decode("utf-8"))
-            if mode == 1:
-                chapter.append(byte.decode("utf-8"))
-            if mode == 2:
-                section.append(byte.decode("utf-8"))
-            if mode == 3:
-                value.append(byte.decode("utf-8"))
-        fid.close()
-        self._di = self._get_data_info()
+            byte = f.read(1)
+            queue.append(byte)
+            if queue == stop:
+                return f.tell()
+
+
+    def readheader(self, file) -> dict:
+        with file.open(mode="rb") as f:
+            s = self.readheadersize(f)
+            f.seek(0)
+            h = self.parseheader(f.read(s))
+            h["datastart"] = s
+            return h
+
+
+    def parseheader(self, headerstring) -> dict:
+        chapter = "DEFAULT"
+        section = "DEFAULT"
+        header = {}
+        if b"version = 2.0" in headerstring:
+            self.version = 2.0
+        for line in headerstring.split(b"\n"):
+            if line.startswith(b"{"):
+                chapter = line[1:-1].decode("utf-8")
+            if line.startswith(b"["):
+                section = line[1:-1].decode("utf-8")
+            else:
+                kvp = line.split(b"=")
+                if len(kvp) != 2:
+                    continue
+                if chapter not in header.keys():
+                    header[chapter] = {}
+                if section not in header[chapter]:
+                    header[chapter][section] = {}
+                header[chapter][section][kvp[0].decode("utf-8").strip()] = (
+                    kvp[1].decode("utf-8").strip()
+                )
+        return header
 
     def getdata(
         self, subtractbackground: bool = True, squeeze: bool = True
@@ -147,7 +142,7 @@ class FliFile:
             data = data[:datasize]
         else:
             data = self._get_data_from_file(
-                offset=self._datastart, datatype=self._di["IMType"], datasize=datasize
+                offset=self.header["datastart"], datatype=self._di["IMType"], datasize=datasize
             )
 
         if self._di["IMType"][1] == 12:  # 12 bit per pixel packed per 2 in 3 bytes
@@ -306,7 +301,7 @@ class FliFile:
             raise KeyError(f"FLIMIMAGE not found in header of {self}")
         if "LAYOUT" not in self.header["FLIMIMAGE"]:
             raise KeyError(f"LAYOUT not found in header of {self}")
-        self.datatype = Datatypes[
+        self.datatype = type_dict[
             self.header["FLIMIMAGE"]["LAYOUT"].get("datatype", "UINT8")
         ]
         # read data layout. Default for each dimension is 1. Default datatype is UINT8. Default packing is lsb.
@@ -361,6 +356,30 @@ class FliFile:
             self.header["FLIMIMAGE"]["INFO"].get("compression", 0)
         )
         return data_info
+
+    def _get_data_info2(self):
+        if "FLIMIMAGE" not in self.header:
+            raise KeyError(f"FLIMIMAGE not found in header of {self}")
+        data_info = {}
+        data_info["IMSize"] = [1, 1, 1, 1, 1, 1, 1]
+        data_info["IMSize"][0] = len(self.header["FLIMIMAGE"]["DEFAULT"].get("channels", "{}").split(","))
+        data_info["IMSize"][1] = int(self.header["FLIMIMAGE"]["DEFAULT"].get("x", 1))
+        data_info["IMSize"][2] = int(self.header["FLIMIMAGE"]["DEFAULT"].get("y", 1))
+        data_info["IMSize"][3] = int(self.header["FLIMIMAGE"]["DEFAULT"].get("z", 1))
+        data_info["IMSize"][4] = len(self.header["FLIMIMAGE"]["DEFAULT"].get("phases", "[]").split(","))
+        data_info["IMSize"][5] = int(self.header["FLIMIMAGE"]["DEFAULT"].get("numberOfFrames", 1))
+        data_info["IMSize"][6] = len(self.header["FLIMIMAGE"]["DEFAULT"].get("frequencies", "[]").split(","))
+        self.pixelFormat = PixelFormat(self.header["FLIMIMAGE"]["DEFAULT"].get("pixelFormat", "Mono8"))
+        data_info["IMType"] = self.pixelFormat.numpytype
+        data_info["IMPacking"] = self.pixelFormat.packing
+        nrOfDarkImages = int(self.header["FLIMIMAGE"]["DEFAULT"].get("numberOfDarkImages", 0))
+        data_info['BG_present'] = nrOfDarkImages > 0
+        data_info['BGSize'] = list(data_info['IMSize'])
+        data_info['BGType'] = data_info['IMType']
+        data_info['BGPacking'] = data_info['IMPacking']
+        data_info['Compression'] = 0
+        return data_info
+
 
     def __str__(self):
         return self.path.name
