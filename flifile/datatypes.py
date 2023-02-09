@@ -203,7 +203,7 @@ class PixelFormat:
         ]:
             return 16
 
-    def setChannels(self, format:Format):
+    def setChannels(self, format: Format):
         if format in [
             Format.Mono8,
             Format.BayerGB8,
@@ -254,7 +254,7 @@ class PixelFormat:
         ]:
             return 3 
 
-    def setNumpyType(self, format:Format):
+    def setNumpyType(self, format: Format):
         if format in [
             Format.BayerBG16,
             Format.BayerGB16,
@@ -303,7 +303,7 @@ class PixelFormat:
             return (np.uint16, 14)
 
 
-    def setPacking(self, format:Format):
+    def setPacking(self, format: Format):
         if format in [
             Format.Mono10p,
             Format.Mono12p,
@@ -328,7 +328,7 @@ class PixelFormat:
         else:
             return "none"
 
-    def setSizeBits(self, format:Format):
+    def setSizeBits(self, format: Format):
         if format in [
             Format.BGR8,
             Format.BGR8Packed,

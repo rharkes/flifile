@@ -385,7 +385,8 @@ class FliFile:
         data_info["IMType"] = self.pixelFormat.numpytype
         data_info["IMPacking"] = self.pixelFormat.packing
         nrOfDarkImages = int(
-            self.header["FLIMIMAGE"]["DEFAULT"].get("numberOfDarkImages", 0))
+            self.header["FLIMIMAGE"]["DEFAULT"].get("numberOfDarkImages", 0)
+        )
         data_info['BG_present'] = nrOfDarkImages > 0
         data_info['BGSize'] = list(data_info['IMSize'])
         data_info['BGType'] = data_info['IMType']
