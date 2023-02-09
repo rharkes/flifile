@@ -356,6 +356,9 @@ class FliFile:
         )
         return data_info
 
+    def __str__(self):
+        return self.path.name
+
     def _get_data_info2(self):
         if "FLIMIMAGE" not in self.header:
             raise KeyError(f"FLIMIMAGE not found in header of {self}")
@@ -379,5 +382,4 @@ class FliFile:
         data_info['Compression'] = 0
         return data_info
 
-    def __str__(self):
-        return self.path.name
+
