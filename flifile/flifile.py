@@ -25,7 +25,6 @@ import logging
 from .datatypes import *
 
 
-
 class FliFile:
     """
     Lambert Instruments .fli file
