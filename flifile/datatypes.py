@@ -163,7 +163,7 @@ class PixelFormat:
             Format.BGR8Packed,
             Format.RGB8Packed,
         ]:
-            return 8 
+            return 8
         if format in [
             Format.Mono10,
             Format.Mono10p,
@@ -252,7 +252,7 @@ class PixelFormat:
             Format.BGR8Packed,
             Format.RGB8Packed,
         ]:
-            return 3 
+            return 3
 
     def setNumpyType(self, format: Format):
         if format in [
@@ -268,7 +268,7 @@ class PixelFormat:
             Format.BayerBG12,
             Format.BayerGB12,
         ]:
-            return (np.uint16, 16) 
+            return (np.uint16, 16)
         if format in [Format.Mono10p, Format.Mono10pmsb]:
             return (np.uint16, 10)
         if format in [
@@ -301,7 +301,6 @@ class PixelFormat:
             return (np.uint8, 8)
         if format in [Format.Mono14p]:
             return (np.uint16, 14)
-
 
     def setPacking(self, format: Format):
         if format in [
