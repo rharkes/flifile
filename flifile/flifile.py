@@ -380,6 +380,5 @@ class FliFile:
         data_info['Compression'] = 0
         return data_info
 
-
     def __str__(self):
         return self.path.name
