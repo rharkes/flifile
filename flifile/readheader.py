@@ -41,3 +41,24 @@ def parseheader(headerstring) -> dict:
                 kvp[1].decode("utf-8").strip()
             )
     return header
+
+
+def tellversion(header: dict) -> str:
+    version = None
+    if "FLIMIMAGE" in header:  # for version 1
+        if "INFO" in header["FLIMIMAGE"]:
+            version = header["FLIMIMAGE"]["INFO"].get("version", None)
+            if version:
+                return version
+
+    if "FLIMIMAGE" in header:  # for version 2
+        if "DEFAULT" in header["FLIMIMAGE"]:
+            version = header["FLIMIMAGE"]["DEFAULT"].get("version", None)
+            if version:
+                return version
+    if "DEFAULT" in header:  # for version 2 if the chapter is gone.
+        if "DEFAULT" in header["DEFAULT"]:
+            version = header["DEFAULT"]["DEFAULT"].get("version", None)
+            if version:
+                return version
+    return version
