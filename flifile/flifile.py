@@ -25,6 +25,7 @@ import logging
 from .datatypes import *
 
 
+
 class FliFile:
     """
     Lambert Instruments .fli file
@@ -52,24 +53,11 @@ class FliFile:
         self.header = {}
         self._bg = np.array([])  # type:np.ndarray
         self.pixelFormat = PixelFormat("Mono8")  # type:Datatypes
-        # get header information
-        # Lines in the header are {Chapter} or [section] or parameter = value
-        mode = 0  # default mode, reading parameter
-        chapter = []
-        current_chapter = ""
-        section = []
-        current_section = ""
-        parameter = []
-        current_parameter = ""
-        value = []
-        pv_pairs = {}
-        sections = {}
         path = Path(filepath)
         self.version = 1.0
         self.header = self.readheader(path)
         if self.version == 2.0:
             self._di = self._get_data_info2()
-            print(self._di)
         else:
             self._di = self._get_data_info()
 
@@ -82,6 +70,7 @@ class FliFile:
             if queue == stop:
                 return f.tell()
 
+
     def readheader(self, file) -> dict:
         with file.open(mode="rb") as f:
             s = self.readheadersize(f)
@@ -90,11 +79,12 @@ class FliFile:
             h["datastart"] = s
             return h
 
+
     def parseheader(self, headerstring) -> dict:
         chapter = "DEFAULT"
         section = "DEFAULT"
         header = {}
-        if b"version = 2.0" in headerstring:
+        if b"version = 2.0" in headerstring[:32]:
             self.version = 2.0
         for line in headerstring.split(b"\n"):
             if line.startswith(b"{"):
@@ -139,9 +129,7 @@ class FliFile:
             data = data[:datasize]
         else:
             data = self._get_data_from_file(
-                offset=self.header["datastart"],
-                datatype=self._di["IMType"],
-                datasize=datasize,
+                offset=self.header["datastart"], datatype=self._di["IMType"], datasize=datasize
             )
 
         if self._di["IMType"][1] == 12:  # 12 bit per pixel packed per 2 in 3 bytes
@@ -356,40 +344,29 @@ class FliFile:
         )
         return data_info
 
-    def __str__(self):
-        return self.path.name
-
     def _get_data_info2(self):
         if "FLIMIMAGE" not in self.header:
             raise KeyError(f"FLIMIMAGE not found in header of {self}")
         data_info = {}
         data_info["IMSize"] = [1, 1, 1, 1, 1, 1, 1]
-        data_info["IMSize"][0] = len(
-            self.header["FLIMIMAGE"]["DEFAULT"].get("channels", "{}").split(",")
-        )
+        data_info["IMSize"][0] = len(self.header["FLIMIMAGE"]["DEFAULT"].get("channels", "{}").split(","))
         data_info["IMSize"][1] = int(self.header["FLIMIMAGE"]["DEFAULT"].get("x", 1))
         data_info["IMSize"][2] = int(self.header["FLIMIMAGE"]["DEFAULT"].get("y", 1))
         data_info["IMSize"][3] = int(self.header["FLIMIMAGE"]["DEFAULT"].get("z", 1))
-        data_info["IMSize"][4] = len(
-            self.header["FLIMIMAGE"]["DEFAULT"].get("phases", "[]").split(",")
-        )
-        data_info["IMSize"][5] = int(
-            self.header["FLIMIMAGE"]["DEFAULT"].get("numberOfFrames", 1)
-        )
-        data_info["IMSize"][6] = len(
-            self.header["FLIMIMAGE"]["DEFAULT"].get("frequencies", "[]").split(",")
-        )
-        self.pixelFormat = PixelFormat(
-            self.header["FLIMIMAGE"]["DEFAULT"].get("pixelFormat", "Mono8")
-        )
+        data_info["IMSize"][4] = len(self.header["FLIMIMAGE"]["DEFAULT"].get("phases", "[]").split(","))
+        data_info["IMSize"][5] = int(self.header["FLIMIMAGE"]["DEFAULT"].get("numberOfFrames", 1))
+        data_info["IMSize"][6] = len(self.header["FLIMIMAGE"]["DEFAULT"].get("frequencies", "[]").split(","))
+        self.pixelFormat = PixelFormat(self.header["FLIMIMAGE"]["DEFAULT"].get("pixelFormat", "Mono8"))
         data_info["IMType"] = self.pixelFormat.numpytype
         data_info["IMPacking"] = self.pixelFormat.packing
-        nrOfDarkImages = int(
-            self.header["FLIMIMAGE"]["DEFAULT"].get("numberOfDarkImages", 0)
-        )
-        data_info["BG_present"] = nrOfDarkImages > 0
-        data_info["BGSize"] = list(data_info["IMSize"])
-        data_info["BGType"] = data_info["IMType"]
-        data_info["BGPacking"] = data_info["IMPacking"]
-        data_info["Compression"] = 0
+        nrOfDarkImages = int(self.header["FLIMIMAGE"]["DEFAULT"].get("numberOfDarkImages", 0))
+        data_info['BG_present'] = nrOfDarkImages > 0
+        data_info['BGSize'] = list(data_info['IMSize'])
+        data_info['BGType'] = data_info['IMType']
+        data_info['BGPacking'] = data_info['IMPacking']
+        data_info['Compression'] = 0
         return data_info
+
+
+    def __str__(self):
+        return self.path.name
