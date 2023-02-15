@@ -1,8 +1,8 @@
 import pytest as pytest
 from pathlib import Path
 
-from flifile.readheader import readheader
-from tests.testdata.headers import returnheaders
+from flifile.readheader import readheader, tellversion
+from tests.testdata.headers import returnheaders, returnversions
 
 
 @pytest.fixture
@@ -17,5 +17,8 @@ def files():
 
 def testheaders(files):
     headers = returnheaders()
+    versions = returnversions()
     for file in files:
-        assert readheader(file) == headers[file.name]
+        header = readheader(file)
+        assert header == headers[file.name]
+        assert tellversion(header) == versions[file.name]
