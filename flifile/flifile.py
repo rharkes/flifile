@@ -36,7 +36,7 @@ class FliFile:
     - _di: dictionary with data information based on the header
     """
 
-    def __init__(self, filepath: os.PathLike | str) -> None:
+    def __init__(self, filepath: os.PathLike[str]) -> None:
         # open file
         if isinstance(filepath, str):
             self.path = Path(filepath)
