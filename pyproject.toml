@@ -18,7 +18,9 @@ dependencies = [
     "numpy",
 ]
 requires-python = ">=3.9"
-
+dependencies = [
+    "numpy",
+]
 [project.optional-dependencies]
 dev = ["black", "bumpver", "pytest", "setuptools", "build", "twine"]
 
@@ -48,5 +50,5 @@ target-version = ['py39', 'py310', 'py311']
 
 [tool.pytest.ini_options]
 pythonpath = [
-  "."
+  "./tests"
 ]
