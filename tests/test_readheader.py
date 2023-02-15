@@ -8,10 +8,10 @@ from tests.testdata.headers import returnheaders, returnversions
 @pytest.fixture
 def files():
     return [
-        Path(Path.cwd(), "testdata", "FliFile1.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"),
-        Path(Path.cwd(), "testdata", "FliFile2.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"),
-        Path(Path.cwd(), "testdata", "FliFile1.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"),
-        Path(Path.cwd(), "testdata", "FliFile2.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"),
+        Path(Path.cwd(), "tests", "testdata", "FliFile1.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"),
+        Path(Path.cwd(), "tests", "testdata", "FliFile2.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"),
+        Path(Path.cwd(), "tests", "testdata", "FliFile1.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"),
+        Path(Path.cwd(), "tests", "testdata", "FliFile2.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"),
     ]
 
 
