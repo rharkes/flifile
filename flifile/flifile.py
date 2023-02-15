@@ -371,11 +371,11 @@ class FliFile:
         nrOfDarkImages = int(
             self.header["FLIMIMAGE"]["DEFAULT"].get("numberOfDarkImages", 0)
         )
-        data_info['BG_present'] = nrOfDarkImages > 0
-        data_info['BGSize'] = list(data_info['IMSize'])
-        data_info['BGType'] = data_info['IMType']
-        data_info['BGPacking'] = data_info['IMPacking']
-        data_info['Compression'] = 0
+        data_info['BG_present'] = nrOfDarkImages > 0 
+        data_info['BGSize'] = list(data_info['IMSize']) 
+        data_info['BGType'] = data_info['IMType'] 
+        data_info['BGPacking'] = data_info['IMPacking'] 
+        data_info['Compression'] = 0 
         return data_info
 
     def __str__(self):
