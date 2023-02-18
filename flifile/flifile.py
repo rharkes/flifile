@@ -21,6 +21,7 @@ from pathlib import Path
 import numpy as np
 import zlib
 import logging
+from typing import Union
 from .datatypes import Datatypes
 
 
@@ -36,7 +37,7 @@ class FliFile:
     - _di: dictionary with data information based on the header
     """
 
-    def __init__(self, filepath: os.PathLike[str]) -> None:
+    def __init__(self, filepath: Union[str, os.PathLike]) -> None:
         # open file
         if isinstance(filepath, str):
             self.path = Path(filepath)
