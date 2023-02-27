@@ -2,6 +2,11 @@ from collections import deque
 
 
 def readheadersize(f) -> int:
+    """
+    Bit convoluted, since you can probably just aswell read a 4kb page,
+    check if it already contains {END} and trim to get the header, or expand with another 4kb.
+    But using deque is fun.
+    """
     queue = deque(b"     ", maxlen=5)
     stop = deque([b"{", b"E", b"N", b"D", b"}"], maxlen=5)
     while True:
