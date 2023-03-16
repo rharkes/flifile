@@ -18,10 +18,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import os
 from pathlib import Path
+from typing import Any, Union
+
 import numpy as np
 import zlib
 import logging
 from .datatypes import Datatypes
+from .readheader import readheader, tellversion
 
 
 class FliFile:
@@ -36,7 +39,7 @@ class FliFile:
     - _di: dictionary with data information based on the header
     """
 
-    def __init__(self, filepath: os.PathLike[str]) -> None:
+    def __init__(self, filepath: Union[str, os.PathLike[Any]]) -> None:
         # open file
         if isinstance(filepath, str):
             self.path = Path(filepath)
@@ -46,85 +49,13 @@ class FliFile:
             raise ValueError("not a valid filename")
         if self.path.suffix != ".fli":
             raise ValueError("Not a valid extension")
-        fid = self.path.open(mode="rb")
         self.log = logging.getLogger("flifile")
-        self.header = {}
-        self._bg = np.array([])  # type:np.ndarray
-        self.datatype = Datatypes.UINT8  # type:Datatypes
-        # get header information
-        # Lines in the header are {Chapter} or [section] or parameter = value
-        mode = 0  # default mode, reading parameter
-        chapter = []
-        current_chapter = ""
-        section = []
-        current_section = ""
-        parameter = []
-        current_parameter = ""
-        value = []
-        pv_pairs = {}
-        sections = {}
-        while True:
-            byte = fid.read(1)
-            if byte == b"{":
-                if current_chapter:  # there is a chapter finished
-                    sections[
-                        current_section
-                    ] = pv_pairs  # add last pv_pairs to the sections
-                    pv_pairs = {}
-                    current_parameter = ""
-                    self.header[
-                        current_chapter
-                    ] = sections  # add sections to the header
-                    sections = {}
-                    current_section = ""
-                mode = 1  # reading chapter
-                chapter = []
-                continue
-            if byte == b"}":
-                mode = 0  # end of chapter/section
-                current_chapter = "".join(chapter).strip()
-                chapter = []
-                if current_chapter == "END":
-                    self._datastart = fid.tell()
-                    break
-                continue
-            if byte == b"]":
-                mode = 0  # end of chapter/section
-                current_section = "".join(section).strip()
-                section = []
-                continue
-            if byte == b"[":
-                mode = 2  # reading section
-                if current_section:
-                    sections[current_section] = pv_pairs
-                    pv_pairs = {}
-                continue
-            if byte == b"=":
-                current_parameter = "".join(parameter).strip()
-                parameter = []
-                mode = 3  # reading value
-                continue
-            if byte == b"\n" or byte == b"\r":
-                if mode == 3:  # finished reading value. Must put with the parameter
-                    pv_pairs[current_parameter] = "".join(value).strip()
-                    value = []
-                mode = 0
-                continue
-            # a valid character to read
-            if mode == 0:
-                parameter.append(byte.decode("utf-8"))
-            if mode == 1:
-                chapter.append(byte.decode("utf-8"))
-            if mode == 2:
-                section.append(byte.decode("utf-8"))
-            if mode == 3:
-                value.append(byte.decode("utf-8"))
-        fid.close()
-        self._di = self._get_data_info()
+        self.header, self._datastart = readheader(self.path)
+        self.version = tellversion(self.header)
 
     def getdata(
         self, subtractbackground: bool = True, squeeze: bool = True
-    ) -> np.array:
+    ) -> np.ndarray:
         """
         Returns the data from the .fli file. If squeeze is False the data is retured with these dimensions:
         frequency,time,phase,z,y,x,channel

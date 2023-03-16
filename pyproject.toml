@@ -19,7 +19,7 @@ dependencies = [
 ]
 requires-python = ">=3.9"
 [project.optional-dependencies]
-dev = ["black", "bumpver", "pytest", "setuptools", "build", "twine"]
+dev = ["black", "bumpver", "pytest", "mypy", "setuptools", "build", "twine"]
 
 [project.urls]
 Homepage = "https://github.com/rharkes/flifile"
@@ -49,3 +49,8 @@ target-version = ['py39', 'py310', 'py311']
 pythonpath = [
   "."
 ]
+
+[tool.mypy]
+python_version = '3.11'
+packages = "flifile"
+strict = true

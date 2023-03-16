@@ -1,6 +1,8 @@
 from enum import Enum
+from typing import Union
 
 import numpy as np
+from numpy import ScalarType
 
 
 class Packing(Enum):
@@ -50,14 +52,15 @@ class Datatypes(Enum):
     BGR8Packed = (np.uint8, 8, Packing.UNKNOWN)
     RGB8 = (np.uint8, 8, Packing.UNKNOWN)
     RGB8Packed = (np.uint8, 8, Packing.UNKNOWN)
+    np_dtypes = Union[np.uint8, np.uint16, np.uint32, np.int8, np.int16, np.int32, np.float32, np.float64]
 
-    def __init__(self, v1, v2, v3):
+    def __init__(self, v1: np_dtypes, v2: int, v3: Packing):
         self.v1 = v1
         self.v2 = v2
         self.v3 = v3
 
     @property
-    def nptype(self) -> np.dtype:
+    def nptype(self) -> np_dtypes:
         return self.v1
 
     @property
