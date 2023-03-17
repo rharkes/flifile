@@ -11,6 +11,18 @@ class Packing(Enum):
     UNKNOWN = 3
 
 
+np_dtypes = Union[
+    np.uint8,
+    np.uint16,
+    np.uint32,
+    np.int8,
+    np.int16,
+    np.int32,
+    np.float32,
+    np.float64,
+]
+
+
 class Datatypes(Enum):
     UINT8 = (np.uint8, 8, Packing.UNKNOWN)
     UINT16 = (np.uint16, 16, Packing.UNKNOWN)
@@ -52,16 +64,6 @@ class Datatypes(Enum):
     BGR8Packed = (np.uint8, 8, Packing.UNKNOWN)
     RGB8 = (np.uint8, 8, Packing.UNKNOWN)
     RGB8Packed = (np.uint8, 8, Packing.UNKNOWN)
-    np_dtypes = Union[
-        np.uint8,
-        np.uint16,
-        np.uint32,
-        np.int8,
-        np.int16,
-        np.int32,
-        np.float32,
-        np.float64,
-    ]
 
     def __init__(self, v1: np_dtypes, v2: int, v3: Packing):
         self.v1 = v1
