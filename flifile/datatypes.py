@@ -1,5 +1,5 @@
 from enum import Enum
-
+from typing import Union
 import numpy as np
 
 
@@ -7,6 +7,18 @@ class Packing(Enum):
     LSB = 0
     MSB = 1
     UNKNOWN = 3
+
+
+np_dtypes = Union[
+    np.uint8,
+    np.uint16,
+    np.uint32,
+    np.int8,
+    np.int16,
+    np.int32,
+    np.float32,
+    np.float64,
+]
 
 
 class Datatypes(Enum):
@@ -51,13 +63,13 @@ class Datatypes(Enum):
     RGB8 = (np.uint8, 8, Packing.UNKNOWN)
     RGB8Packed = (np.uint8, 8, Packing.UNKNOWN)
 
-    def __init__(self, v1, v2, v3):
+    def __init__(self, v1: np_dtypes, v2: int, v3: Packing):
         self.v1 = v1
         self.v2 = v2
         self.v3 = v3
 
     @property
-    def nptype(self) -> np.dtype:
+    def nptype(self) -> np_dtypes:
         return self.v1
 
     @property
@@ -67,3 +79,11 @@ class Datatypes(Enum):
     @property
     def packing(self) -> Packing:
         return self.v3
+
+
+def getdatatype(datatype: str = "", pixelformat: str = "") -> Datatypes:
+    if datatype == "UINT8" and pixelformat == "Mono8":
+        return Datatypes.Mono8
+    if datatype == "UINT12" and pixelformat == "Mono12p":
+        return Datatypes.Mono12p
+    return Datatypes.UINT8

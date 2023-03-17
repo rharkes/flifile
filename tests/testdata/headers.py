@@ -40,7 +40,6 @@ def returnheaders() -> dict:
                 "z": "1",
             }
         },
-        "datastart": 14848,
     }
     headers["FliFile1.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"] = {
         "FLIMIMAGE": {
@@ -69,7 +68,6 @@ def returnheaders() -> dict:
                 "triggerOffset": "0",
             },
         },
-        "datastart": 10752,
     }
 
     headers["FliFile1.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"] = {
@@ -99,7 +97,6 @@ def returnheaders() -> dict:
                 "triggerOffset": "0",
             },
         },
-        "datastart": 10752,
     }
 
     headers["FliFile2.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"] = {
@@ -142,7 +139,6 @@ def returnheaders() -> dict:
                 "z": "1",
             }
         },
-        "datastart": 14848,
     }
 
     return headers
@@ -154,4 +150,13 @@ def returnversions() -> dict:
         "FliFile2.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": "2.0",
         "FliFile1.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": "1.0",
         "FliFile2.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": "2.0",
+    }
+
+
+def returndatastarts() -> dict:
+    return {
+        "FliFile1.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": 10752,
+        "FliFile2.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": 14848,
+        "FliFile1.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": 10752,
+        "FliFile2.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": 14848,
     }

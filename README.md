@@ -1,3 +1,7 @@
+[![mypy](https://github.com/rharkes/flifile/actions/workflows/mypy.yml/badge.svg)](https://github.com/rharkes/flifile/actions/workflows/mypy.yml)
+[![Black](https://github.com/rharkes/flifile/actions/workflows/black.yml/badge.svg)](https://github.com/rharkes/flifile/actions/workflows/black.yml)
+[![Black](https://github.com/rharkes/flifile/actions/workflows/pytest.yml/badge.svg)](https://github.com/rharkes/flifile/actions/workflows/pytest.yml)
+
 # flifile
 Python code for opening a lambert instruments .fli file
 
