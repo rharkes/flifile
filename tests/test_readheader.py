@@ -2,7 +2,12 @@ import pytest as pytest
 from pathlib import Path
 
 from flifile.readheader import readheader, tellversion, telldatainfo
-from tests.testdata.headers import returnheaders, returnversions, returndatastarts, returndatainfos
+from tests.testdata.headers import (
+    returnheaders,
+    returnversions,
+    returndatastarts,
+    returndatainfos,
+)
 
 
 @pytest.fixture

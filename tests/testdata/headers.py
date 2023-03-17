@@ -169,7 +169,7 @@ def returndatastarts() -> dict:
 def returndatainfos() -> dict:
     return {
         "FliFile1.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": DataInfo(
-            version='1.0',
+            version="1.0",
             IMSize=(1, 1944, 1472, 1, 1, 2, 1),
             IMType=Datatypes.Mono12p,
             Compression=0,
@@ -179,7 +179,7 @@ def returndatainfos() -> dict:
             valid=True,
         ),
         "FliFile2.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": DataInfo(
-            version='2.0',
+            version="2.0",
             IMSize=(1, 1944, 1472, 1, 1, 2, 1),
             IMType=Datatypes.Mono12p,
             Compression=0,
@@ -189,7 +189,7 @@ def returndatainfos() -> dict:
             valid=True,
         ),
         "FliFile1.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": DataInfo(
-            version='1.0',
+            version="1.0",
             IMSize=(1, 1944, 1472, 1, 1, 2, 1),
             IMType=Datatypes.UINT8,
             Compression=0,
@@ -199,7 +199,7 @@ def returndatainfos() -> dict:
             valid=True,
         ),
         "FliFile2.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": DataInfo(
-            version='2.0',
+            version="2.0",
             IMSize=(1, 1944, 1472, 1, 1, 2, 1),
             IMType=Datatypes.UINT8,
             Compression=0,
