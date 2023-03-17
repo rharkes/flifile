@@ -218,10 +218,12 @@ class FliFile:
         self, offset: int, datatype: Datatypes, datasize: int
     ) -> np.ndarray[Any, np.dtype[np_dtypes]]:
         if datatype.bits == 12:  # 12 bit per pixel packed per 2 in 3 bytes
+            # e.g. if you would want to get 4 values, this is 48 bits, is 6 bytes.
             count = int(3 * (datasize / 2))
-        else:
-            count = datasize
-        return np.fromfile(self.path, offset=offset, dtype=datatype.nptype, count=count)
+            return np.fromfile(self.path, offset=offset, dtype=np.uint8, count=count)
+        return np.fromfile(
+            self.path, offset=offset, dtype=datatype.nptype, count=datasize
+        )
 
     def __str__(self) -> str:
         return self.path.name

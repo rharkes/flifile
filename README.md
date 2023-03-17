@@ -24,3 +24,12 @@ Open a local .fli file
 `pip install flifile`
 
 https://pypi.org/project/flifile/
+
+
+## Contribute
+Install with the development packages: `pip install flifile[dev]`
+
+Before making a pull request, make sure the following three commands run without errors
+* `black .`
+* `pytest`
+* `mypy`
