@@ -82,8 +82,10 @@ class Datatypes(Enum):
 
 
 def getdatatype(datatype: str = "", pixelformat: str = "") -> Datatypes:
-    if datatype == "UINT8" and pixelformat == "Mono8":
+    if pixelformat == "Mono8":
         return Datatypes.Mono8
-    if datatype == "UINT12" and pixelformat == "Mono12p":
+    if pixelformat == "Mono12p":
         return Datatypes.Mono12p
+    if datatype == "UINT8":
+        return Datatypes.UINT8
     return Datatypes.UINT8

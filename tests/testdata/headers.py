@@ -1,3 +1,7 @@
+from flifile.datatypes import Datatypes
+from flifile.readheader import DataInfo
+
+
 def returnheaders() -> dict:
     headers = {}
     headers["FliFile2.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli"] = {
@@ -159,4 +163,49 @@ def returndatastarts() -> dict:
         "FliFile2.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": 14848,
         "FliFile1.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": 10752,
         "FliFile2.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": 14848,
+    }
+
+
+def returndatainfos() -> dict:
+    return {
+        "FliFile1.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": DataInfo(
+            version='1.0',
+            IMSize=(1, 1944, 1472, 1, 1, 2, 1),
+            IMType=Datatypes.Mono12p,
+            Compression=0,
+            BG_present=False,
+            BGSize=(1, 1944, 1472, 1, 1, 1, 1),
+            BGType=Datatypes.Mono12p,
+            valid=True,
+        ),
+        "FliFile2.0(1)_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": DataInfo(
+            version='2.0',
+            IMSize=(1, 1944, 1472, 1, 1, 2, 1),
+            IMType=Datatypes.Mono12p,
+            Compression=0,
+            BG_present=False,
+            BGSize=(1, 1944, 1472, 1, 1, 1, 1),
+            BGType=Datatypes.Mono12p,
+            valid=True,
+        ),
+        "FliFile1.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": DataInfo(
+            version='1.0',
+            IMSize=(1, 1944, 1472, 1, 1, 2, 1),
+            IMType=Datatypes.UINT8,
+            Compression=0,
+            BG_present=False,
+            BGSize=(1, 1944, 1472, 1, 1, 1, 1),
+            BGType=Datatypes.UINT8,
+            valid=True,
+        ),
+        "FliFile2.0_DEV_1AB22C01C4FA_DS_0x0_02HH6.fli": DataInfo(
+            version='2.0',
+            IMSize=(1, 1944, 1472, 1, 1, 2, 1),
+            IMType=Datatypes.UINT8,
+            Compression=0,
+            BG_present=False,
+            BGSize=(1, 1944, 1472, 1, 1, 1, 1),
+            BGType=Datatypes.UINT8,
+            valid=True,
+        ),
     }

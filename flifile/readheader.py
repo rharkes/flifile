@@ -102,7 +102,7 @@ def telldatainfo(header: Dict[str, Dict[str, Dict[str, str]]]) -> DataInfo:
     valid = False
     if version == "1.0":
         imsize = (
-            int(header["FLIMIMAGE"]["LAYOUT"]["Channel"]),
+            int(header["FLIMIMAGE"]["LAYOUT"]["channels"]),
             int(header["FLIMIMAGE"]["LAYOUT"]["x"]),
             int(header["FLIMIMAGE"]["LAYOUT"]["y"]),
             int(header["FLIMIMAGE"]["LAYOUT"]["z"]),
@@ -118,21 +118,18 @@ def telldatainfo(header: Dict[str, Dict[str, Dict[str, str]]]) -> DataInfo:
         bgpresent = bool(header["FLIMIMAGE"]["LAYOUT"].get("hasDarkImage", "0") == "1")
         bgsize = (
             1,
-            int(header["FLIMIMAGE"]["LAYOUT"]["x"]),
-            int(header["FLIMIMAGE"]["LAYOUT"]["y"]),
+            imsize[1],
+            imsize[2],
             1,
             1,
             1,
             1,
         )
-        bgtype = getdatatype(
-            header["FLIMIMAGE"]["LAYOUT"]["datatype"],
-            header["FLIMIMAGE"]["LAYOUT"]["pixelFormat"],
-        )
+        bgtype = imtype
         if "BACKGROUND" in header["FLIMIMAGE"]:
             bgpresent = True
             bgsize = (
-                int(header["FLIMIMAGE"]["BACKGROUND"]["Channel"]),
+                int(header["FLIMIMAGE"]["BACKGROUND"]["channels"]),
                 int(header["FLIMIMAGE"]["BACKGROUND"]["x"]),
                 int(header["FLIMIMAGE"]["BACKGROUND"]["y"]),
                 int(header["FLIMIMAGE"]["BACKGROUND"]["z"]),
@@ -144,6 +141,39 @@ def telldatainfo(header: Dict[str, Dict[str, Dict[str, str]]]) -> DataInfo:
                 header["FLIMIMAGE"]["BACKGROUND"]["datatype"],
                 header["FLIMIMAGE"]["BACKGROUND"]["pixelFormat"],
             )
+        valid = True
+    elif version == "2.0":
+        ch = len(header["FLIMIMAGE"]["DEFAULT"]["channels"].strip("{}[]").split(","))
+        ph = len(header["FLIMIMAGE"]["DEFAULT"]["phases"].strip("{}[]").split(","))
+        ts = len(
+            header["FLIMIMAGE"]["DEFAULT"]["timestamps"].strip("{}[]").split(",")
+        )  # seems unused
+        fr = len(header["FLIMIMAGE"]["DEFAULT"]["frequencies"].strip("{}[]").split(","))
+        imsize = (
+            ch,
+            int(header["FLIMIMAGE"]["DEFAULT"]["x"]),
+            int(header["FLIMIMAGE"]["DEFAULT"]["y"]),
+            int(header["FLIMIMAGE"]["DEFAULT"]["z"]),
+            ph,
+            int(header["FLIMIMAGE"]["DEFAULT"]["numberOfFrames"]),
+            fr,
+        )
+        imtype = getdatatype(
+            "",
+            header["FLIMIMAGE"]["DEFAULT"]["pixelFormat"],
+        )
+        compression = 0
+        bgpresent = False
+        bgsize = (
+            1,
+            imsize[1],
+            imsize[2],
+            1,
+            1,
+            1,
+            1,
+        )
+        bgtype = imtype
         valid = True
 
     return DataInfo(
