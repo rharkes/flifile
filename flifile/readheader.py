@@ -3,11 +3,15 @@ from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Union, Any, BinaryIO, Tuple
-
 from flifile.datatypes import Datatypes, getdatatype
 
 
 def readheadersize(f: BinaryIO) -> int:
+    """
+    Bit convoluted, since you can probably just aswell read a 4kb page,
+    check if it already contains {END} and trim to get the header, or expand with another 4kb.
+    But using deque is fun.
+    """
     queue = deque([b" ", b" ", b" ", b" ", b" "], maxlen=5)
     stop = deque([b"{", b"E", b"N", b"D", b"}"], maxlen=5)
     while True:

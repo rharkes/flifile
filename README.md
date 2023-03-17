@@ -19,3 +19,8 @@ Open a local .fli file
 >>> data.mean()
 26342.449652777777
 ```
+
+## Install
+`pip install flifile`
+
+https://pypi.org/project/flifile/
