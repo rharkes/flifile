@@ -14,7 +14,9 @@ def readheadersize(f: BinaryIO) -> int:
             return f.tell()
 
 
-def readheader(file: Union[str, os.PathLike[Any]]) -> Tuple[dict[str, Dict[str, Dict[str, str]]], int]:
+def readheader(
+    file: Union[str, os.PathLike[Any]]
+) -> Tuple[dict[str, Dict[str, Dict[str, str]]], int]:
     file = Path(file)
     with file.open(mode="rb") as f:
         s = readheadersize(f)
