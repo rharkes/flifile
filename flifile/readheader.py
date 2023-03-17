@@ -1,7 +1,10 @@
 import os
 from collections import deque
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Union, Any, BinaryIO, Tuple
+
+from flifile.datatypes import Datatypes, getdatatype
 
 
 def readheadersize(f: BinaryIO) -> int:
@@ -67,3 +70,85 @@ def tellversion(header: Dict[str, Dict[str, Dict[str, str]]]) -> str:
             if version:
                 return version
     return version
+
+
+@dataclass
+class DataInfo:
+    version: str
+    IMSize: tuple[int, int, int, int, int, int, int]  # ch, x, y, z, ph, t, freq
+    IMType: Datatypes
+    Compression: int
+    BG_present: bool
+    BGSize: tuple[int, int, int, int, int, int, int]  # ch, x, y, z, ph, t, freq
+    BGType: Datatypes
+    valid: bool
+
+    def __bool__(self) -> bool:
+        return self.valid
+
+
+def telldatainfo(header: Dict[str, Dict[str, Dict[str, str]]]) -> DataInfo:
+    version = tellversion(header)
+    imsize = (0, 0, 0, 0, 0, 0, 0)
+    imtype = Datatypes.UINT8
+    compression = 0
+    bgpresent = False
+    bgsize = (0, 0, 0, 0, 0, 0, 0)
+    bgtype = Datatypes.UINT8
+    valid = False
+    if version == "1.0":
+        imsize = (
+            int(header["FLIMIMAGE"]["LAYOUT"]["Channel"]),
+            int(header["FLIMIMAGE"]["LAYOUT"]["x"]),
+            int(header["FLIMIMAGE"]["LAYOUT"]["y"]),
+            int(header["FLIMIMAGE"]["LAYOUT"]["z"]),
+            int(header["FLIMIMAGE"]["LAYOUT"]["phases"]),
+            int(header["FLIMIMAGE"]["LAYOUT"]["timestamps"]),
+            int(header["FLIMIMAGE"]["LAYOUT"]["frequencies"]),
+        )
+        imtype = getdatatype(
+            header["FLIMIMAGE"]["LAYOUT"]["datatype"],
+            header["FLIMIMAGE"]["LAYOUT"]["pixelFormat"],
+        )
+        compression = int(header["FLIMIMAGE"]["INFO"]["compression"])
+        bgpresent = bool(header["FLIMIMAGE"]["LAYOUT"].get("hasDarkImage", "0") == "1")
+        bgsize = (
+            1,
+            int(header["FLIMIMAGE"]["LAYOUT"]["x"]),
+            int(header["FLIMIMAGE"]["LAYOUT"]["y"]),
+            1,
+            1,
+            1,
+            1,
+        )
+        bgtype = getdatatype(
+            header["FLIMIMAGE"]["LAYOUT"]["datatype"],
+            header["FLIMIMAGE"]["LAYOUT"]["pixelFormat"],
+        )
+        if "BACKGROUND" in header["FLIMIMAGE"]:
+            bgpresent = True
+            bgsize = (
+                int(header["FLIMIMAGE"]["BACKGROUND"]["Channel"]),
+                int(header["FLIMIMAGE"]["BACKGROUND"]["x"]),
+                int(header["FLIMIMAGE"]["BACKGROUND"]["y"]),
+                int(header["FLIMIMAGE"]["BACKGROUND"]["z"]),
+                int(header["FLIMIMAGE"]["BACKGROUND"]["phases"]),
+                int(header["FLIMIMAGE"]["BACKGROUND"]["timestamps"]),
+                int(header["FLIMIMAGE"]["BACKGROUND"]["frequencies"]),
+            )
+            bgtype = getdatatype(
+                header["FLIMIMAGE"]["BACKGROUND"]["datatype"],
+                header["FLIMIMAGE"]["BACKGROUND"]["pixelFormat"],
+            )
+        valid = True
+
+    return DataInfo(
+        version=version,
+        IMSize=imsize,
+        IMType=imtype,
+        Compression=compression,
+        BG_present=bgpresent,
+        BGSize=bgsize,
+        BGType=bgtype,
+        valid=valid,
+    )

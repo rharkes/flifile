@@ -81,3 +81,11 @@ class Datatypes(Enum):
     @property
     def packing(self) -> Packing:
         return self.v3
+
+
+def getdatatype(datatype: str = "", pixelformat: str = "") -> Datatypes:
+    if datatype == "UINT8" and pixelformat == "Mono8":
+        return Datatypes.Mono8
+    if datatype == "UINT12" and pixelformat == "Mono12p":
+        return Datatypes.Mono12p
+    return Datatypes.UINT8
