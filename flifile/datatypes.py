@@ -88,4 +88,6 @@ def getdatatype(datatype: str = "", pixelformat: str = "") -> Datatypes:
         return Datatypes.Mono12p
     if datatype == "UINT8":
         return Datatypes.UINT8
+    if datatype == "UINT16":
+        return Datatypes.UINT16
     return Datatypes.UINT8

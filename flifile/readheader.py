@@ -111,8 +111,8 @@ def telldatainfo(header: Dict[str, Dict[str, Dict[str, str]]]) -> DataInfo:
             int(header["FLIMIMAGE"]["LAYOUT"]["frequencies"]),
         )
         imtype = getdatatype(
-            header["FLIMIMAGE"]["LAYOUT"]["datatype"],
-            header["FLIMIMAGE"]["LAYOUT"]["pixelFormat"],
+            header["FLIMIMAGE"]["LAYOUT"].get("datatype", ""),
+            header["FLIMIMAGE"]["LAYOUT"].get("pixelFormat", ""),
         )
         compression = int(header["FLIMIMAGE"]["INFO"]["compression"])
         bgpresent = bool(header["FLIMIMAGE"]["LAYOUT"].get("hasDarkImage", "0") == "1")
@@ -138,8 +138,8 @@ def telldatainfo(header: Dict[str, Dict[str, Dict[str, str]]]) -> DataInfo:
                 int(header["FLIMIMAGE"]["BACKGROUND"]["frequencies"]),
             )
             bgtype = getdatatype(
-                header["FLIMIMAGE"]["BACKGROUND"]["datatype"],
-                header["FLIMIMAGE"]["BACKGROUND"]["pixelFormat"],
+                header["FLIMIMAGE"]["LAYOUT"].get("datatype", ""),
+                header["FLIMIMAGE"]["LAYOUT"].get("pixelFormat", ""),
             )
         valid = True
     elif version == "2.0":

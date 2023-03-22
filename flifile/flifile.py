@@ -108,7 +108,7 @@ class FliFile:
         if not self.datainfo.BG_present:
             self.log.warning("WARNING: No background present in file")
             return np.array([])
-        if self._bg.size == 0:
+        if self._bg.size != 0:
             data = self._bg
         else:
             if self.datainfo.Compression > 0:
