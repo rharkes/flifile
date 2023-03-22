@@ -90,4 +90,17 @@ def getdatatype(datatype: str = "", pixelformat: str = "") -> Datatypes:
         return Datatypes.UINT8
     if datatype == "UINT16":
         return Datatypes.UINT16
+    if datatype == "UINT32":
+        return Datatypes.UINT32
+    if datatype == "INT8":
+        return Datatypes.INT8
+    if datatype == "INT16":
+        return Datatypes.INT16
+    if datatype == "INT32":
+        return Datatypes.INT32
+    if datatype == "REAL32":
+        return Datatypes.REAL32
+    if datatype == "REAL64":
+        return Datatypes.REAL64
+
     return Datatypes.UINT8
