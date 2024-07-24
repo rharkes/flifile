@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flifile"
-version = "1.4.2"
+version = "1.4.3"
 description = "Read flifiles"
 readme = "README.md"
 authors = [{ name = "Rolf Harkes", email = "r.harkes@nki.nl" }]
@@ -25,7 +25,7 @@ dev = ["black", "bumpver", "pytest", "mypy", "setuptools", "build", "twine"]
 Homepage = "https://github.com/rharkes/flifile"
 
 [tool.bumpver]
-current_version = "1.4.2"
+current_version = "1.4.3"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
