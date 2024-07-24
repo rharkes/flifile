@@ -17,7 +17,7 @@ keywords = ["flifile", "lambert Instruments"]
 dependencies = [
     "numpy",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10,<3.13"
 [project.optional-dependencies]
 dev = ["black", "bumpver", "pytest", "mypy", "setuptools", "build", "twine"]
 
@@ -30,7 +30,7 @@ version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
 tag = true
-push = false
+push = true
 
 [tool.bumpver.file_patterns]
 "pyproject.toml" = [
@@ -43,7 +43,7 @@ push = false
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py310', 'py311', 'py312']
 
 [tool.pytest.ini_options]
 pythonpath = [
@@ -51,6 +51,6 @@ pythonpath = [
 ]
 
 [tool.mypy]
-python_version = '3.11'
+python_version = '3.12'
 packages = "flifile"
 strict = true

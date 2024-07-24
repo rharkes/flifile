@@ -16,10 +16,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 import os
 from pathlib import Path
 from typing import Any, Union
 import numpy as np
+import numpy.typing as npt
 import zlib
 import logging
 from .datatypes import Packing, Datatypes, np_dtypes
@@ -51,7 +53,9 @@ class FliFile:
         self.log = logging.getLogger("flifile")
         self.header, self._datastart = readheader(self.path)
         self.datainfo = telldatainfo(self.header)
-        self._bg = np.array([], dtype=self.datainfo.BGType.nptype)
+        self._bg: npt.NDArray[np_dtypes] = np.array(
+            [], dtype=self.datainfo.BGType.nptype
+        )
 
     def getdata(
         self, subtractbackground: bool = True, squeeze: bool = True
@@ -70,7 +74,7 @@ class FliFile:
             fid = self.path.open(mode="rb")
             fid.seek(self._datastart)
             dcmp = zlib.decompressobj(32 + zlib.MAX_WBITS)  # skip the GZIP header
-            data = np.frombuffer(
+            data: npt.NDArray[np_dtypes] = np.frombuffer(
                 dcmp.decompress(fid.read()), dtype=self.datainfo.IMType.nptype
             )
             bg = data[datasize:]
@@ -82,7 +86,6 @@ class FliFile:
                 datatype=self.datainfo.IMType,
                 datasize=datasize,
             )
-
         if self.datainfo.IMType.bits == 12:  # 12 bit per pixel packed per 2 in 3 bytes
             data = self._convert_12_bit(data, datatype=self.datainfo.IMType)
         data = data.reshape(self.datainfo.IMSize[::-1])
@@ -220,10 +223,14 @@ class FliFile:
         if datatype.bits == 12:  # 12 bit per pixel packed per 2 in 3 bytes
             # e.g. if you would want to get 4 values, this is 48 bits, is 6 bytes.
             count = int(3 * (datasize / 2))
-            return np.fromfile(self.path, offset=offset, dtype=np.uint8, count=count)
-        return np.fromfile(
+            result12: npt.NDArray[np_dtypes] = np.fromfile(
+                self.path, offset=offset, dtype=np.uint8, count=count
+            )
+            return result12
+        result: npt.NDArray[np_dtypes] = np.fromfile(
             self.path, offset=offset, dtype=datatype.nptype, count=datasize
         )
+        return result
 
     def __str__(self) -> str:
         return self.path.name
