@@ -15,6 +15,7 @@ jobs:
         with:
           name: dist
           path: ./dist
+          run-id: ${{ github.event.workflow_run.id }}
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
