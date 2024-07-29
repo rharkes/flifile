@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: dist
+          pattern: dist-*
           path: ./dist
           run-id: ${{ github.event.workflow_run.id }}
       - name: Publish package to PyPI
