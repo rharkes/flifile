@@ -17,9 +17,9 @@ keywords = ["flifile", "lambert Instruments"]
 dependencies = [
     "numpy",
 ]
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.12,<3.15"
 [project.optional-dependencies]
-dev = ["black", "bumpver", "pytest", "mypy", "setuptools", "build", "twine"]
+dev = ["bumpver", "pytest", "mypy", "setuptools", "build", "twine"]
 
 [project.urls]
 Homepage = "https://github.com/rharkes/flifile"
@@ -43,7 +43,7 @@ push = true
 
 [tool.black]
 line-length = 88
-target-version = ['py310', 'py311', 'py312']
+target-version = ['py312', 'py313', 'py314']
 
 [tool.pytest.ini_options]
 pythonpath = [
@@ -51,6 +51,6 @@ pythonpath = [
 ]
 
 [tool.mypy]
-python_version = '3.12'
+python_version = '3.14'
 packages = "flifile"
 strict = true
