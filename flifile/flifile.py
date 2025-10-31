@@ -17,14 +17,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import logging
 import os
+import zlib
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
+
 import numpy as np
 import numpy.typing as npt
-import zlib
-import logging
-from .datatypes import Packing, Datatypes, np_dtypes
+
+from .datatypes import Datatypes, Packing, np_dtypes
 from .readheader import readheader, telldatainfo
 
 
@@ -40,7 +42,7 @@ class FliFile:
     - _di: dictionary with data information based on the header
     """
 
-    def __init__(self, filepath: Union[str, os.PathLike[Any]]) -> None:
+    def __init__(self, filepath: str | os.PathLike[Any]) -> None:
         # open file
         if isinstance(filepath, str):
             self.path = Path(filepath)
@@ -103,8 +105,8 @@ class FliFile:
         self, squeeze: bool = True
     ) -> np.ndarray[Any, np.dtype[np_dtypes]]:
         """
-        Returns the background data from the .fli file. If squeeze is False the data is retured with these dimensions:
-        frequency,time,phase,z,y,x,channel
+        Returns the background data from the .fli file. If squeeze is False the data is
+        returned with these dimensions: frequency,time,phase,z,y,x,channel
         :param squeeze: Return data without singleton dimensions in x,y,ph,t,z,fr,c order
         :return: numpy.ndarray
         """

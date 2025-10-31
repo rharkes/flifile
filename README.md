@@ -28,9 +28,9 @@ https://pypi.org/project/flifile/
 
 ## Contribute
 * Clone the repository
-* Install with the development packages: `pip install -e .[dev]`
+* Install with the development packages: `uv pip install -e .[dev]`
 
 Before making a pull request, make sure the following three commands run without errors
-* `black .`
+* `uvx ruff check .`
 * `pytest`
 * `mypy`

@@ -41,9 +41,26 @@ push = true
     "{version}"
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py312', 'py313', 'py314']
+[tool.ruff]
+line-length = 110
+exclude = [
+    "tests",
+]
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
 
 [tool.pytest.ini_options]
 pythonpath = [

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Union
+
 import numpy as np
 
 
@@ -9,16 +9,16 @@ class Packing(Enum):
     UNKNOWN = 3
 
 
-np_dtypes = Union[
-    np.uint8,
-    np.uint16,
-    np.uint32,
-    np.int8,
-    np.int16,
-    np.int32,
-    np.float32,
-    np.float64,
-]
+np_dtypes = (
+    np.uint8|
+    np.uint16|
+    np.uint32|
+    np.int8|
+    np.int16|
+    np.int32|
+    np.float32|
+    np.float64
+)
 
 
 class Datatypes(Enum):
