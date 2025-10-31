@@ -30,7 +30,7 @@ https://pypi.org/project/flifile/
 * Clone the repository
 * Install with the development packages: `uv pip install -e .[dev]`
 
-Before making a pull request, make sure the following three commands run without errors
+Before making a pull request, make sure the following commands run without errors
 * `uvx ruff check .`
 * `uvx ruff format .`
 * `pytest`
