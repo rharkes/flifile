@@ -32,5 +32,6 @@ https://pypi.org/project/flifile/
 
 Before making a pull request, make sure the following three commands run without errors
 * `uvx ruff check .`
+* `uvx ruff format .`
 * `pytest`
 * `mypy`
