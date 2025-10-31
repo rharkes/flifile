@@ -55,9 +55,7 @@ class FliFile:
         self.log = logging.getLogger("flifile")
         self.header, self._datastart = readheader(self.path)
         self.datainfo = telldatainfo(self.header)
-        self._bg: npt.NDArray[np_dtypes] = np.array(
-            [], dtype=self.datainfo.BGType.nptype
-        )
+        self._bg: npt.NDArray[np_dtypes] = np.array([], dtype=self.datainfo.BGType.nptype)
 
     def getdata(
         self, subtractbackground: bool = True, squeeze: bool = True
@@ -101,9 +99,7 @@ class FliFile:
 
         return data
 
-    def getbackground(
-        self, squeeze: bool = True
-    ) -> np.ndarray[Any, np.dtype[np_dtypes]]:
+    def getbackground(self, squeeze: bool = True) -> np.ndarray[Any, np.dtype[np_dtypes]]:
         """
         Returns the background data from the .fli file. If squeeze is False the data is
         returned with these dimensions: frequency,time,phase,z,y,x,channel
@@ -125,19 +121,13 @@ class FliFile:
             else:
                 offset = (
                     self._datastart
-                    + (
-                        self.datainfo.IMType.bits
-                        * int(np.prod(self.datainfo.IMSize, dtype=np.uint64))
-                    )
-                    / 8
+                    + (self.datainfo.IMType.bits * int(np.prod(self.datainfo.IMSize, dtype=np.uint64))) / 8
                 )
                 datasize = int(np.prod(self.datainfo.BGSize, dtype=np.uint64))
                 data = self._get_data_from_file(
                     offset=int(offset), datatype=self.datainfo.BGType, datasize=datasize
                 )
-                if (
-                    self.datainfo.BGType.bits == 12
-                ):  # 12 bit per pixel packed per 2 in 3 bytes
+                if self.datainfo.BGType.bits == 12:  # 12 bit per pixel packed per 2 in 3 bytes
                     data = self._convert_12_bit(
                         data,
                         datatype=self.datainfo.BGType,
@@ -205,13 +195,9 @@ class FliFile:
             data[0::2] = byte1.astype(np.uint16) + np.left_shift(
                 np.left_shift(byte2, 4).astype(np.uint8).astype(np.uint16), 4
             )
-            data[1::2] = np.left_shift(byte3.astype(np.uint16), 4) + np.right_shift(
-                byte2, 4
-            ).astype(np.uint8)
+            data[1::2] = np.left_shift(byte3.astype(np.uint16), 4) + np.right_shift(byte2, 4).astype(np.uint8)
         elif datatype.packing == Packing.MSB:
-            data[0::2] = np.left_shift(byte1.astype(np.uint16), 4) + np.right_shift(
-                byte2, 4
-            ).astype(np.uint8)
+            data[0::2] = np.left_shift(byte1.astype(np.uint16), 4) + np.right_shift(byte2, 4).astype(np.uint8)
             data[1::2] = np.left_shift(
                 np.left_shift(byte2, 4).astype(np.uint8).astype(np.uint16), 4
             ) + byte3.astype(np.uint16)

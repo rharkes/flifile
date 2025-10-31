@@ -50,9 +50,7 @@ def parseheader(headerstring: bytes) -> dict[str, dict[str, dict[str, str]]]:
                 header[chapter] = {}
             if section not in header[chapter]:
                 header[chapter][section] = {}
-            header[chapter][section][kvp[0].decode("utf-8").strip()] = (
-                kvp[1].decode("utf-8").strip()
-            )
+            header[chapter][section][kvp[0].decode("utf-8").strip()] = kvp[1].decode("utf-8").strip()
     return header
 
 
@@ -143,9 +141,7 @@ def telldatainfo(header: dict[str, dict[str, dict[str, str]]]) -> DataInfo:
     elif version == "2.0":
         ch = len(header["FLIMIMAGE"]["DEFAULT"]["channels"].strip("{}[]").split(","))
         ph = len(header["FLIMIMAGE"]["DEFAULT"]["phases"].strip("{}[]").split(","))
-        _ = len(
-            header["FLIMIMAGE"]["DEFAULT"]["timestamps"].strip("{}[]").split(",")
-        )  # seems unused
+        _ = len(header["FLIMIMAGE"]["DEFAULT"]["timestamps"].strip("{}[]").split(","))  # seems unused
         fr = len(header["FLIMIMAGE"]["DEFAULT"]["frequencies"].strip("{}[]").split(","))
         imsize = (
             ch,
